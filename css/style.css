@@ -1,0 +1,72 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;	
+	margin:0;
+	background-color:#cccccc;
+}
+
+h1 {
+	font-size:16px;
+}
+
+h2 {
+	font-size:10px;
+}
+
+#topo {
+	position:static;
+	width:100%;
+	color:#FFFFFF;
+	font-size:18px;
+	text-shadow:#666666;
+	margin:0;
+	font-weight: bolder;
+	text-align: center;
+	background-color: #999999;
+	height: 64px;
+	vertical-align: middle;
+}
+
+#bott {
+	float:left;	
+	width:100%;
+	color:#FFFFFF;
+	margin:0;
+	background-color: #999999;
+	height: 64px;
+	vertical-align: middle;
+}
+
+#ppal {
+	position:static;
+	width:100%;
+	margin:0;
+}
+
+#div1 {
+	visibility:visible;	
+	float:left;
+	width:30%;
+	padding: 10px;
+
+}
+
+#div2 {
+	visibility:visible;
+	float:left; 
+	width:30%;
+	padding: 10px;
+}
+
+#div3 {
+	visibility:visible;
+	float:left;
+	width:30%;
+	padding: 10px;
+}
+
+.transparencia {
+   opacity: .25;
+   -moz-opacity: .25;
+   filter:alpha(opacity=25);
+   float: left;
+} 
