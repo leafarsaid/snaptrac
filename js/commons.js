@@ -152,60 +152,66 @@ function realca(div) {
 
 function SortIt(TheArr,u,v,w,x,y,z){
 
-  if(u==undefined){TheArr.sort(Sortsingle);} // this is a simple array, not multi-dimensional, ie, SortIt(TheArr);
-  else{TheArr.sort(Sortmulti);}
+	if(u==undefined){TheArr.sort(Sortsingle);} // this is a simple array, not multi-dimensional, ie, SortIt(TheArr);
+	else{TheArr.sort(Sortmulti);}
 
-  function Sortsingle(a,b){
-    var swap=0;
-    if(isNaN(a-b)){
-      if((isNaN(a))&&(isNaN(b))){swap=(b<a)-(a<b);}
-      else {swap=(isNaN(a)?1:-1);}
-    }
-    else {swap=(a-b);}
-    return swap;
-  }
+	function Sortsingle(a,b){
+		var swap=0;
+		if(isNaN(a-b)){
+			if((isNaN(a))&&(isNaN(b))){swap=(b<a)-(a<b);}
+			else {swap=(isNaN(a)?1:-1);}
+		}
+		else {swap=(a-b);}
+		return swap;
+	}
 
- function Sortmulti(a,b){
-  var swap=0;
-    if(isNaN(a[u]-b[u])){
-      if((isNaN(a[u]))&&(isNaN(b[u]))){swap=(b[u]<a[u])-(a[u]<b[u]);}
-      else{swap=(isNaN(a[u])?1:-1);}
-    }
-    else{swap=(a[u]-b[u]);}
-    if((v==undefined)||(swap!=0)){return swap;}
-    else{
-      if(isNaN(a[v]-b[v])){
-        if((isNaN(a[v]))&&(isNaN(b[v]))){swap=(b[v]<a[v])-(a[v]<b[v]);}
-        else{swap=(isNaN(a[v])?1:-1);}
-      }
-      else{swap=(a[v]-b[v]);}
-      if((w==undefined)||(swap!=0)){return swap;}
-      else{
-        if(isNaN(a[w]-b[w])){
-          if((isNaN(a[w]))&&(isNaN(b[w]))){swap=(b[w]<a[w])-(a[w]<b[w]);}
-          else{swap=(isNaN(a[w])?1:-1);}
-        }
-        else{swap=(a[w]-b[w]);}
-        if((x==undefined)||(swap!=0)){return swap;}
-        else{
-          if(isNaN(a[x]-b[x])){
-            if((isNaN(a[x]))&&(isNaN(b[x]))){swap=(b[x]<a[x])-(a[x]<b[x]);}
-            else{swap=(isNaN(a[x])?1:-1);}
-          }
-          else{swap=(a[x]-b[x]);}
-          if((y==undefined)||(swap!=0)){return swap;}
-          else{
-            if(isNaN(a[y]-b[y])){
-              if((isNaN(a[y]))&&(isNaN(b[y]))){swap=(b[y]<a[y])-(a[y]<b[y]);}
-              else{swap=(isNaN(a[y])?1:-1);}
-            }
-            else{swap=(a[y]-b[y]);}
-            if((z=undefined)||(swap!=0)){return swap;}
-            else{
-              if(isNaN(a[z]-b[z])){
-                if((isNaN(a[z]))&&(isNaN(b[z]))){swap=(b[z]<a[z])-(a[z]<b[z]);}
-                else{swap=(isNaN(a[z])?1:-1);}
-              }
-              else{swap=(a[z]-b[z]);}
-              return swap;
-} } } } } } }
+	function Sortmulti(a,b){
+		var swap=0;
+		if(isNaN(a[u]-b[u])){
+			if((isNaN(a[u]))&&(isNaN(b[u]))){swap=(b[u]<a[u])-(a[u]<b[u]);}
+			else{swap=(isNaN(a[u])?1:-1);}
+		}
+		else{swap=(a[u]-b[u]);}
+		if((v==undefined)||(swap!=0)){return swap;}
+		else{
+			if(isNaN(a[v]-b[v])){
+				if((isNaN(a[v]))&&(isNaN(b[v]))){swap=(b[v]<a[v])-(a[v]<b[v]);}
+				else{swap=(isNaN(a[v])?1:-1);}
+			}
+			else{swap=(a[v]-b[v]);}
+			if((w==undefined)||(swap!=0)){return swap;}
+			else{
+				if(isNaN(a[w]-b[w])){
+					if((isNaN(a[w]))&&(isNaN(b[w]))){swap=(b[w]<a[w])-(a[w]<b[w]);}
+					else{swap=(isNaN(a[w])?1:-1);}
+				}
+				else{swap=(a[w]-b[w]);}
+				if((x==undefined)||(swap!=0)){return swap;}
+				else{
+					if(isNaN(a[x]-b[x])){
+						if((isNaN(a[x]))&&(isNaN(b[x]))){swap=(b[x]<a[x])-(a[x]<b[x]);}
+						else{swap=(isNaN(a[x])?1:-1);}
+					}
+					else{swap=(a[x]-b[x]);}
+					if((y==undefined)||(swap!=0)){return swap;}
+					else{
+						if(isNaN(a[y]-b[y])){
+							if((isNaN(a[y]))&&(isNaN(b[y]))){swap=(b[y]<a[y])-(a[y]<b[y]);}
+							else{swap=(isNaN(a[y])?1:-1);}
+						}
+						else{swap=(a[y]-b[y]);}
+						if((z=undefined)||(swap!=0)){return swap;}
+						else{
+							if(isNaN(a[z]-b[z])){
+								if((isNaN(a[z]))&&(isNaN(b[z]))){swap=(b[z]<a[z])-(a[z]<b[z]);}
+								else{swap=(isNaN(a[z])?1:-1);}
+							}
+							else{swap=(a[z]-b[z]);}
+							return swap;
+						} 
+					} 
+				} 
+			} 
+		} 
+	} 
+}

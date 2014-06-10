@@ -14,6 +14,7 @@ function apagaPTS() {
 	pcla = new Array();
 	pclo = new Array();
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function getPoints(content) {
 	
@@ -121,8 +122,6 @@ function retornaTrac(content) {
 	
 	return trac;
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function retornaVolta(trac,num_ponto) {
@@ -291,20 +290,24 @@ function geraRadaresTot(content) {
 	$('#rel').tinymce().setContent('');
 	quebra=content.split('\n');
 	//alert("\n--0-->"+quebra[0]+"\n--1-->"+quebra[1]+"\n--2-->"+quebra[2]+"\n--3-->"+quebra[3]+"\n--4-->"+quebra[4]+"\n--5-->"+quebra[5]+"\n--6-->"+quebra[6]);	
+	var i;
 	for (i=5;i<quebra.length;i++) {
 	//for (i=5;i<30;i++) {
 		quebra2 = quebra[i].split(',');	
 		var lat = quebra2[2]+"";	
 		var lon = quebra2[3]+"";
+		var lat2;	
+		var lon2;
+		
 		if (lat[6]=="'") {
-			var lat2 = (lat[0]+(parseInt(lat[1]+lat[2]) + (lat[4]+lat[5])/60 + (lat[8]+lat[9]+lat[10]+lat[11]+lat[12]+lat[13]+lat[14]+lat[15])/3600).toFixed(6));
-			var lon2 = (lon[0]+(parseInt(lon[2]+lon[3]) + (lon[5]+lon[6])/60 + (lon[9]+lon[10]+lon[11]+lon[12]+lon[13]+lon[14]+lon[15]+lon[16])/3600).toFixed(6));
+			lat2 = (lat[0]+(parseInt(lat[1]+lat[2]) + (lat[4]+lat[5])/60 + (lat[8]+lat[9]+lat[10]+lat[11]+lat[12]+lat[13]+lat[14]+lat[15])/3600).toFixed(6));
+			lon2 = (lon[0]+(parseInt(lon[2]+lon[3]) + (lon[5]+lon[6])/60 + (lon[9]+lon[10]+lon[11]+lon[12]+lon[13]+lon[14]+lon[15]+lon[16])/3600).toFixed(6));
 			lat2 = (lat2*1).toFixed(6)+"";
 			lon2 = (lon2*1).toFixed(6)+"";
 			//alert("lat: "+lat2+" lon: "+lon2);
 		} else {
-			var lat2 = lat;
-			var lon2 = lon;
+			lat2 = lat;
+			lon2 = lon;
 			//alert("lat: "+lat2+" lon: "+lon2);
 		}
 		tracla.push(lat2);
@@ -314,6 +317,9 @@ function geraRadaresTot(content) {
 		var vel = distancia(tracla[i-1],traclo[i-1],tracla[i],traclo[i])/(trachor[i]-trachor[i-1]);
 		//var vel = distancia(0,0,tracla[i],traclo[i]);
 		//tracvel.push(vel);
+		if (console) {
+			console.log(vel);
+		}
 	}
 	for (i=0;i<tracla.length;i++) {
 		trac[i] = new Array();
@@ -336,7 +342,9 @@ function geraRadaresTot(content) {
 		var hora = trac[i][2]*1;
 		//dados_txt += i+"-> "+toTime(hora)+" | "+tempo+" | "+dist.toFixed(2)+"<br>";
 		//if (vel>velmax) dados_txt += i+"-> "+toTime(hora)+" | "+velmax+" | "+vel+"<br>";
-		if (hora>maxhora) maxhora = hora;
+		if (hora>maxhora) {
+			maxhora = hora;
+		}
 		if (hora>0) {
 			num_radares++;
 			if (entrada==0) entrada=toTime(hora);
