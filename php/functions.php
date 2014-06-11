@@ -53,4 +53,11 @@ class functions{
 	public function SortIt($arr,$col){		
 		return $arr;
 	}
+
+	public function toSec($num) {
+		$arrsec = explode(":",$num);
+		$tosec = ($arrsec[0]*3600+$arrsec[1]*60+$arrsec[2]);
+		
+		return $tosec;
+	}
 }

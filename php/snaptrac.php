@@ -21,100 +21,105 @@ class snaptrac{
 		$this->gate = $st['Parametros']['gate'];
 		$this->functions = new functions();
 	}
-/* 
+
 	public function getPoints($content) {	
 		
-		quebra=content.split('\n');
-		for (i=0;i<quebra.length;i++) {
-			if (quebra[i]!="" && quebra[i+1]!="") {
-				//alert(quebra[i]);
-				pt_nome.push(quebra[i]);
-				quebra2 = quebra[i+1].split(' ');			
+		$quebra = explode("\n",$content);
+		
+		for ($i=0;$i<count($quebra);$i++) {
+			if ($quebra[$i]!="" && $quebra[$i+1]!="") {
 				
-				if (quebra2[0][2]!=" ") {
-					if (quebra2[0][0]=="S") sinal1="-";
-					else sinal1="+";
-					if (quebra2[1][0]=="W") sinal2="-";
-					else sinal2="+";
-					pcla.push(sinal1+quebra2[0].substring(1));
-					pclo.push(sinal2+quebra2[1].substring(1));
+				array_push($pt_nome,$quebra[$i]);
+				$quebra2 = explode(" ",$quebra[$i+1]);
+				
+				if ($quebra2[0][2] != " "){
+					if ($quebra2[0][0] == "S"){
+						$sinal1 = "-";
+					} else{
+						$sinal1 = "+";
+					}
+					if ($quebra2[1][0] == "W"){
+						$sinal2 = "-";
+					} else{
+						$sinal2 = "+";
+					}
+					array_push($pcla,$sinal1.substr($quebra2[0],0,1));
+					array_push($pclo,$sinal2.substr($quebra2[1],0,1));
 				} else{
-					if (quebra2[0][0]=="S") sinal1="-";
-					else sinal1="+";
-					if (quebra2[2][0]=="W") sinal2="-";
-					else sinal2="+";
-					pcla.push(sinal1+(60*60*(quebra2[0][1]+quebra2[0][2])+60*(quebra2[1]))/3600);
-					pclo.push(sinal2+(60*60*(quebra2[2][1]+quebra2[2][2])+60*(quebra2[3]))/3600);
+					if ($quebra2[0][0] == "S"){
+						$sinal1 = "-";
+					} else{
+						$sinal1 = "+";
+					}
+					if ($quebra2[2][0] == "W"){
+						$sinal2 = "-";
+					} else{
+						$sinal2 = "+";
+					}
+					array_push($pcla,($sinal1.(60*60*($quebra2[0][1].$quebra2[0][2]).(60*($quebra2[1]))/3600)));
+					array_push($pclo,($sinal2.(60*60*($quebra2[2][1].$quebra2[2][2]).(60*($quebra2[3]))/3600)));
 				}
 			}
 		}
-		var cont="";
-		for (i=0;i<pcla.length;i++) {
-			cont+=i+"-> ponto:"+pt_nome[i]+" lat:"+pcla[i]+"\n";
+		$cont="";
+		for ($i=0;$i<count($pcla);$i++) {
+			$cont .= $i."-> ponto:".$pt_nome[$i]." lat:".$pcla[$i]."\n";
 		}
-		for (i=0;i<pclo.length;i++) {
-			cont+=i+"-> ponto:"+pt_nome[i]+" long:"+pclo[i]+"\n";
+		for ($i=0;$i<count($pclo);$i++) {
+			$cont .= $i."-> ponto:".$pt_nome[$i]." long:".$pclo[$i]."\n";
 		}
-		//alert(cont);
-		$('#pts').tinymce().setContent('<pre>'+cont+'</pre>');
-		document.getElementById('div1').className="transparencia";
-		document.getElementById('div2').className="";
 		
-		realca(2);
+		return $cont;
 	}
 	
-	public function retornaTrac(content) {
-		tracla = new Array();
-		traclo = new Array();
-		tracdata = new Array();
-		trachor = new Array();
-		tracdist = new Array();
-		tracalt = new Array();
-		trac = new Array();
-		$('#rel').tinymce().setContent('');
-		quebra=content.split('\n');
-		//alert("\n--0-->"+quebra[0]+"\n--1-->"+quebra[1]+"\n--2-->"+quebra[2]+"\n--3-->"+quebra[3]+"\n--4-->"+quebra[4]+"\n--5-->"+quebra[5]+"\n--6-->"+quebra[6]);
-		for (i=5;i<quebra.length;i++) {
-			//for (i=5;i<30;i++) {
-			quebra2 = quebra[i].split(',');
-			var lat = quebra2[2]+"";
-			var lon = quebra2[3]+"";
-			if (lat[6]=="'") {
-				var lat2 = (lat[0]+(parseInt(lat[1]+lat[2]) + (lat[4]+lat[5])/60 + (lat[8]+lat[9]+lat[10]+lat[11]+lat[12]+lat[13]+lat[14]+lat[15])/3600).toFixed(6));
-				var lon2 = (lon[0]+(parseInt(lon[2]+lon[3]) + (lon[5]+lon[6])/60 + (lon[9]+lon[10]+lon[11]+lon[12]+lon[13]+lon[14]+lon[15]+lon[16])/3600).toFixed(6));
-				lat2 = (lat2*1).toFixed(6)+"";
-				lon2 = (lon2*1).toFixed(6)+"";
-				//alert("lat: "+lat2+" lon: "+lon2);
+	public function retornaTrac($content) {
+		$tracla = array();
+		$traclo = array();
+		$tracdata = array();
+		$trachor = array();
+		$tracdist = array();
+		$tracalt = array();
+		$this->trac = array();
+		
+		$quebra=content.split('\n');
+		
+		for ($i=5;$i<count($quebra);$i++) {
+			$quebra2 = $quebra[i].split(',');
+			$lat = $quebra2[2]+"";
+			$lon = $quebra2[3]+"";
+			if ($lat[6] == "'") {
+				$lat2 = ($lat[0] . ($lat[1].$lat[2]) . ($lat[4].$lat[5])/60) . round(($lat[8].$lat[9].$lat[10].$lat[11].$lat[12].$lat[13].$lat[14].$lat[15])/3600,6);
+				$lon2 = ($lon[0] . ($lon[2].$lon[3]) . ($lon[5].$lon[6])/60) . round(($lon[9].$lon[10].$lon[11].$lon[12].$lon[13].$lon[14].$lon[15].$lon[16])/3600,6);
+				//$lat2 = (lat2*1).toFixed(6)+"";
+				//$lon2 = (lon2*1).toFixed(6)+"";
 			} else {
-				var lat2 = lat;
-				var lon2 = lon;
-				//alert("lat: "+lat2+" lon: "+lon2);
+				$lat2 = $lat;
+				$lon2 = $lon;
 			}
 			//latitudes
-			tracla.push(lat2);
+			array_push($tracla,$lat2);
 			//longitudes
-			traclo.push(lon2);
+			array_push($traclo,$lon2);
 			//datas
-			tracdata.push(""+quebra2[4]);
+			array_push($tracdata,$quebra2[4]);
 			//horas
-			trachor.push(toSec(""+quebra2[5]));
-			//trachor.push(quebra2[5]);
+			array_push($trachor,$this->functions->toSec($quebra2[5]));
 	
 			//distancias
-			dist = new Array();
-			for (k=0;k<pcla.length;k++) {
-				dist[k] = distancia(pcla[k],pclo[k],lat2,lon2);
-				dist[k] = dist[k]*1000;
-				if (dist[k]>document.getElementById('gate').value) {
-					dist[k]=99999999;
+			$dist = array();
+			for ($k=0;$k<pcla.length;$k++) {
+				$dist[$k] = $this->functions->distancia($pcla[$k],$pclo[$k],$lat2,$lon2);
+				$dist[$k] = $dist[$k]*1000;
+				if (dist[$k]>document.getElementById('gate').value) {
+					dist[$k]=99999999;
 				}
 			}
 			tracdist.push(dist);
 			//altitudes
-			tracalt.push(""+quebra2[6]);
+			tracalt.push(""+$quebra2[6]);
 		}
 		for (i=0;i<tracla.length;i++) {
-			trac[i] = new Array();
+			trac[i] = array();
 			trac[i][0]=tracla[i];
 			trac[i][1]=traclo[i];
 			trac[i][2]=trachor[i];
@@ -128,18 +133,18 @@ class snaptrac{
 	}
 	
 	public function retornaVolta(trac,num_ponto) {
-		distancias = new Array();
-		horarios = new Array();
+		distancias = array();
+		horarios = array();
 	
 		for (i=0;i<trac.length;i++) {
-			dist_array = new Array();
+			dist_array = array();
 			dist_array = trac[i][5];
 			distancias.push(dist_array[num_ponto]);
 			horarios.push(trac[i][2]);
 		}
-		volta = new Array();
-		var temp1 = 99999999;
-		var temp2 = 0;
+		volta = array();
+		$temp1 = 99999999;
+		$temp2 = 0;
 		for (i=0;i<horarios.length;i++) {
 			//se a atual linha estiver no gate
 			if (!isNaN(distancias[i]) && distancias[i]!=99999999) {
@@ -162,16 +167,16 @@ class snaptrac{
 	
 	public function geraRel(content,pt_nome) {
 		realca(3);
-		radarEntrada = new Array();
-		radarSaida = new Array();
-		trac = new Array();
+		radarEntrada = array();
+		radarSaida = array();
+		trac = array();
 		trac = retornaTrac(content);
 	
 		SortIt(trac,2);
-		var dados_txt = "";
+		$dados_txt = "";
 	
 		for (k=0;k<pt_nome.length;k++) {
-			var dados = new Array();
+			$dados = array();
 			dados = retornaVolta(trac,k);
 	
 			dados_txt += "Relatório do ponto:";
@@ -189,7 +194,7 @@ class snaptrac{
 	
 		//alert(toTime(radarEntrada[0])+"\n"+toTime(radarEntrada[1])+"\n"+toTime(radarEntrada[2])+"\n"+toTime(radarEntrada[3])+"\n"+toTime(radarEntrada[4]));
 	}
- */	
+	
 	public function geraRadares($content) {
 		
 		$this->radarEntrada = array();
