@@ -7,10 +7,6 @@ class snaptrac{
 	public $velmax;
 	public $fuso;
 	public $gate;
-	public $pt_nome;
-	public $radarEntrada;
-	public $radarSaida;
-	public $trac;
 	public $functions;
 	
 	public function __construct(){
@@ -79,12 +75,12 @@ class snaptrac{
 		$trachor = array();
 		$tracdist = array();
 		$tracalt = array();
-		$this->trac = array();
+		$trac = array();
 		
-		$quebra=content.split('\n');
+		$quebra = explode('\n',$content);
 		
 		for ($i=5;$i<count($quebra);$i++) {
-			$quebra2 = $quebra[i].split(',');
+			$quebra2 = $quebra[$i].split(',');
 			$lat = $quebra2[2]+"";
 			$lon = $quebra2[3]+"";
 			if ($lat[6] == "'") {
@@ -107,130 +103,131 @@ class snaptrac{
 	
 			//distancias
 			$dist = array();
-			for ($k=0;$k<pcla.length;$k++) {
+			for ($k=0;$k<count($pcla);$k++) {
 				$dist[$k] = $this->functions->distancia($pcla[$k],$pclo[$k],$lat2,$lon2);
 				$dist[$k] = $dist[$k]*1000;
-				if (dist[$k]>document.getElementById('gate').value) {
-					dist[$k]=99999999;
+				if ($dist[$k]>$this->gate) {
+					$dist[$k]=99999999;
 				}
 			}
-			tracdist.push(dist);
+			array_push($tracdist,$dist);
 			//altitudes
-			tracalt.push(""+$quebra2[6]);
+			array_push($tracalt,$quebra2[6]);
 		}
-		for (i=0;i<tracla.length;i++) {
-			trac[i] = array();
-			trac[i][0]=tracla[i];
-			trac[i][1]=traclo[i];
-			trac[i][2]=trachor[i];
-			trac[i][3]=tracdata[i];
-			trac[i][4]=distancia(tracla[i-1],traclo[i-1],tracla[i],traclo[i])/((trachor[i]-trachor[i-1])/3600);
-			trac[i][5]=tracdist[i];
-			trac[i][6]=tracalt[i];
+		for ($i=0;$i<count($tracla);$i++) {
+			$trac[$i] = array();
+			$trac[$i][0]=$tracla[$i];
+			$trac[$i][1]=$traclo[$i];
+			$trac[$i][2]=$trachor[$i];
+			$trac[$i][3]=$tracdata[$i];
+			$trac[$i][4]=$distancia($tracla[$i-1],$traclo[$i-1],$tracla[$i],$traclo[$i])/(($trachor[$i]-$trachor[$i-1])/3600);
+			$trac[$i][5]=$tracdist[$i];
+			$trac[$i][6]=$tracalt[$i];
 		}
 	
-		return trac;
+		return $trac;
 	}
 	
-	public function retornaVolta(trac,num_ponto) {
-		distancias = array();
-		horarios = array();
+	public function retornaVolta($trac,$num_ponto) {
+		$distancias = array();
+		$horarios = array();
 	
-		for (i=0;i<trac.length;i++) {
-			dist_array = array();
-			dist_array = trac[i][5];
-			distancias.push(dist_array[num_ponto]);
-			horarios.push(trac[i][2]);
+		for ($i=0;$i<count($trac);$i++) {
+			$dist_array = array();
+			$dist_array = $trac[$i][5];
+			array_push($distancias,$dist_array[$num_ponto]);
+			array_push($horarios,$trac[$i][2]);
 		}
-		volta = array();
+		$volta = array();
 		$temp1 = 99999999;
 		$temp2 = 0;
-		for (i=0;i<horarios.length;i++) {
+		for ($i=0;$i<count($horarios);$i++) {
 			//se a atual linha estiver no gate
-			if (!isNaN(distancias[i]) && distancias[i]!=99999999) {
-				if (distancias[i]<temp1) {
-					temp1=distancias[i];
-					temp2=horarios[i];
+			if (!is_nan($distancias[$i]) && $distancias[$i]!=99999999) {
+				if ($distancias[$i]<temp1) {
+					$temp1=$distancias[$i];
+					$temp2=$horarios[$i];
 				}
 				//se a proxima linha NÃO estiver no gate
-				if (isNaN(distancias[i+1]) || distancias[i+1]==99999999) {
-					volta.push(temp2);
-					if (num_ponto%2==0) radarEntrada.push(temp2);
-					else radarSaida.push(temp2);
-					temp1 = 99999999;
+				if (is_nan($distancias[$i+1]) || $distancias[$i+1]==99999999) {
+					array_push($volta,$temp2);
+					if ($num_ponto%2 == 0){
+						array_push($radarEntrada,$temp2);
+					}
+					else{
+						array_push($radarSaida,$temp2);
+					}
+					$temp1 = 99999999;
 				}
 			}
 		}
-		//alert(volta.length+"="+radarEntrada.length+"+"+radarSaida.length);
-		return volta;
+		
+		return $volta;
 	}
 	
-	public function geraRel(content,pt_nome) {
-		realca(3);
-		radarEntrada = array();
-		radarSaida = array();
-		trac = array();
-		trac = retornaTrac(content);
+	public function geraRel($content,$pt_nome) {		
+		$radarEntrada = array();
+		$radarSaida = array();
+		$trac = array();
+		$trac = retornaTrac(content);
 	
-		SortIt(trac,2);
+		$this->functions->SortIt($trac,2);
 		$dados_txt = "";
 	
-		for (k=0;k<pt_nome.length;k++) {
+		for ($k=0;$k<count($pt_nome);$k++) {
 			$dados = array();
-			dados = retornaVolta(trac,k);
+			$dados = retornaVolta(trac,k);
 	
-			dados_txt += "Relatório do ponto:";
-			dados_txt += pt_nome[k];
-			dados_txt += " Número de passagens:";
-			dados_txt += dados.length;
-			dados_txt += "<br>";
-			for (i=0;i<dados.length;i++) {
-				dados_txt += toTime(dados[i])+"<br>";
+			$dados_txt .= "Relatório do ponto:";
+			$dados_txt .= $pt_nome[$k];
+			$dados_txt .= " Número de passagens:";
+			$dados_txt .= count($dados);
+			$dados_txt .= "<br />";
+			for ($i=0;$i<count($dados);$i++) {
+				$dados_txt .= $this->functions->toTime($dados[$i])."<br />";
 			}
-			dados_txt += "<br><br>";
+			$dados_txt .= "<br /><br />";
 		}
 	
-		$('#rel').tinymce().execCommand('mceInsertContent',false,dados_txt);
-	
-		//alert(toTime(radarEntrada[0])+"\n"+toTime(radarEntrada[1])+"\n"+toTime(radarEntrada[2])+"\n"+toTime(radarEntrada[3])+"\n"+toTime(radarEntrada[4]));
+		return $dados_txt;		
 	}
 	
 	public function geraRadares($content) {
 		
-		$this->radarEntrada = array();
-		$this->radarSaida = array();
-		$this->trac = array();
-		$this->trac = $this->retornaTrac($content);
-		$this->functions->SortIt($this->trac,2);
-		for ($k=0;$k<count($this->trac);$k++) {
+		$radarEntrada = array();
+		$radarSaida = array();
+		$trac = array();
+		$trac = $this->retornaTrac($content);
+		$this->functions->SortIt($trac,2);
+		for ($k=0;$k<count($trac);$k++) {
 			$dados = array();
-			$dados = $this->retornaVolta($this->trac,$k);
+			$dados = $this->retornaVolta($trac,$k);
 		}
 		
 		$dados_txt = "";
 	
-		for ($k=0;$k<count($this->radarEntrada);$k++) {
+		for ($k=0;$k<count($radarEntrada);$k++) {
 			$num_radares = 0;
 			$num_excessos = 0;
 			$maxima = 0;
 	
-			for ($i=0;$i<count($this->trac);$i++) {
-				$vel = $this->trac[$i][4]*1;
-				$hora = $this->trac[$i][2]*1;
-				if ($hora>=$this->radarEntrada[$k] && $hora<=$this->radarSaida[$k]) {
+			for ($i=0;$i<count($trac);$i++) {
+				$vel = $trac[$i][4]*1;
+				$hora = $trac[$i][2]*1;
+				if ($hora>=$radarEntrada[$k] && $hora<=$radarSaida[$k]) {
 					$num_radares++;
 					if ($vel>$this->velmax) $num_excessos++;
 					if ($vel>$maxima) $maxima = $vel;
 				}
 			}
 			
-			$dados_txt += "<b>Trecho com Radar ";
-			$dados_txt += eval($k+1)+":</b><br><br>Entrada:<b>";
-			$dados_txt += $this->functions->toTime($radarEntrada[$k])+"</b><br>Saída:<b>";
-			$dados_txt += $this->functions->toTime($radarSaida[$k])+"</b><br>Radares:<b>";
-			$dados_txt += $num_radares+"</b><br>Excessos:<b>";
-			$dados_txt += $num_excessos+"</b><br>Máxima:<b>";
-			$dados_txt += round($maxima,2)+"</b><br><br><br>";
+			$dados_txt .= "<b>Trecho com Radar ";
+			$dados_txt .= eval($k+1)+":</b><br /><br />Entrada:<b>";
+			$dados_txt .= $this->functions->toTime($radarEntrada[$k])+"</b><br />Saída:<b>";
+			$dados_txt .= $this->functions->toTime($radarSaida[$k])+"</b><br />Radares:<b>";
+			$dados_txt .= $num_radares+"</b><br />Excessos:<b>";
+			$dados_txt .= $num_excessos+"</b><br />Máxima:<b>";
+			$dados_txt .= round($maxima,2)+"</b><br /><br /><br />";
 		}
 		
 		return $dados_txt;
@@ -238,57 +235,57 @@ class snaptrac{
 		
 	public function geraRadares2($content) {
 		
-		$this->radarEntrada = array();
-		$this->radarSaida = array();
-		$this->trac = array();
-		$this->trac = retornaTrac($content);
-		$this->functions->SortIt($this->trac,2);	
-		for ($k=0;$k<count($this->trac);$k++){
+		$radarEntrada = array();
+		$radarSaida = array();
+		$trac = array();
+		$trac = retornaTrac($content);
+		$this->functions->SortIt($trac,2);	
+		for ($k=0;$k<count($trac);$k++){
 			$dados = array();
-			$dados = $this->retornaVolta($this->trac,$k);
+			$dados = $this->retornaVolta($trac,$k);
 		}		
 		
 		$tadentro = false;	
-		$dados_txt = "Version,212<br><br>WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0<br>USER GRID,0,0,0,0,0<br><br>";
-		for ($i=0;$i<$k<count($this->trac);$i++) {
-			if ($this->trac[$i][4]>=0) {
-				if ($this->trac[$i][4]>=$this->velmax) {
+		$dados_txt = "Version,212<br /><br />WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0<br />USER GRID,0,0,0,0,0<br /><br />";
+		for ($i=0;$i<$k<count($trac);$i++) {
+			if ($trac[$i][4]>=0) {
+				if ($trac[$i][4]>=$this->velmax) {
 					$tadentro = false;
-					for ($k=0;$k<count($this->radarEntrada);$k++) {
-						if ($this->trac[$i][2]>=$this->radarEntrada[$k] && $this->trac[$i][2]<=$this->radarSaida[$k]) {
+					for ($k=0;$k<count($radarEntrada);$k++) {
+						if ($trac[$i][2]>=$radarEntrada[$k] && $trac[$i][2]<=$radarSaida[$k]) {
 							$tadentro = true;
 						}
 					}
 					if ($tadentro) {
 						$dados_txt .= "w,dms,";
-						$dados_txt .= round($this->trac[$i][4],2);
+						$dados_txt .= round($trac[$i][4],2);
 						$dados_txt .= ",";
-						$dados_txt .= $this->trac[$i][0].",".$this->trac[$i][1].",".$this->trac[$i][3]." ".$this->functions->toTimeGreenwitch($this->trac[$i][2]).",".$this->trac[$i][5].",2,133,0,13<br>";
+						$dados_txt .= $trac[$i][0].",".$trac[$i][1].",".$trac[$i][3]." ".$this->functions->toTimeGreenwitch($trac[$i][2]).",".$trac[$i][5].",2,133,0,13<br />";
 					}
 				}
 			}
 		}
-		$dados_txt += "<br>";
-		for ($i=0;$i<count($this->trac);$i++) {
-			if (!is_nan($this->trac[$i][0]) && !is_nan($this->trac[$i][2])) {
+		$dados_txt += "<br />";
+		for ($i=0;$i<count($trac);$i++) {
+			if (!is_nan($trac[$i][0]) && !is_nan($trac[$i][2])) {
 				$tadentro = false;
-				for ($k=0;$k<count($this->radarEntrada);$k++) {
-					if ($this->trac[$i][2]>=$this->radarEntrada[$k] && $this->trac[$i][2]<=$this->radarSaida[$k]){
+				for ($k=0;$k<count($radarEntrada);$k++) {
+					if ($trac[$i][2]>=$radarEntrada[$k] && $trac[$i][2]<=$radarSaida[$k]){
 						$tadentro = true;
 					}
 				}
-				if ($this->trac[$i][4]>=$this->velmax && ($tadentro == true)){
+				if ($trac[$i][4]>=$this->velmax && ($tadentro == true)){
 					$dados_txt += "<font color=red>";
 				}
 				$dados_txt .= "t,dms,";
-				$dados_txt .= $this->trac[$i][0].",".$this->trac[$i][1].",".$this->trac[$i][3].",".$this->functions->toTime($this->trac[$i][2],$this->fuso).",".$this->trac[$i][5];
+				$dados_txt .= $trac[$i][0].",".$trac[$i][1].",".$trac[$i][3].",".$this->functions->toTime($trac[$i][2],$this->fuso).",".$trac[$i][5];
 				if ($i==0){
-					$dados_txt .= ",1<br>";
+					$dados_txt .= ",1<br />";
 				}
 				else{
-					$dados_txt .= ",0<br>";
+					$dados_txt .= ",0<br />";
 				}
-				if ($this->trac[$i][4] >= $this->velmax && ($tadentro == true)){
+				if ($trac[$i][4] >= $this->velmax && ($tadentro == true)){
 					$dados_txt .= "</font>";
 				}
 			}
@@ -303,7 +300,7 @@ class snaptrac{
 		$traclo = array();
 		$trachor = array();
 		$tracvel = array();
-		$this->trac = array();
+		$trac = array();
 		
 		$quebra = explode('\n',$content);
 		//alert("\n--0-->"+quebra[0]+"\n--1-->"+quebra[1]+"\n--2-->"+quebra[2]+"\n--3-->"+quebra[3]+"\n--4-->"+quebra[4]+"\n--5-->"+quebra[5]+"\n--6-->"+quebra[6]);	
@@ -342,9 +339,9 @@ class snaptrac{
 		$maxima = 0;
 		$entrada = 0;
 		$maxhora = 0;
-		for ($i=0;$i<count($this->trac);$i++) {
-			$vel = $this->trac[$i][3];
-			$hora = $this->trac[$i][2];
+		for ($i=0;$i<count($trac);$i++) {
+			$vel = $trac[$i][3];
+			$hora = $trac[$i][2];
 			if ($hora>$maxhora) {
 				$maxhora = $hora;
 			}
@@ -360,50 +357,50 @@ class snaptrac{
 			if ($vel>$maxima) $maxima = $vel;	
 		}	
 		
-		$dados_txt = "Entrada:<b>".$entrada."</b><br>Saída:<b>".$this->functions->toTime($maxhora)."</b><br>Radares:<b>".$num_radares."</b><br>Excessos:<b>".$num_excessos."</b><br>Máxima:<b>".round($maxima,2)."</b>";
+		$dados_txt = "Entrada:<b>".$entrada."</b><br />Saída:<b>".$this->functions->toTime($maxhora)."</b><br />Radares:<b>".$num_radares."</b><br />Excessos:<b>".$num_excessos."</b><br />Máxima:<b>".round($maxima,2)."</b>";
 			
 		return $dados_txt;
 	}
 
 	public function geraRadaresTot2($content) {
 		
-		$this->radarEntrada = array();
-		$this->radarSaida = array();
-		$this->trac = array();
-		$this->trac = $this->retornaTrac($content);
-		$this->functions->SortIt($this->trac,2);	
-		for ($k=0;$k<count($this->trac);$k++) {
+		$radarEntrada = array();
+		$radarSaida = array();
+		$trac = array();
+		$trac = $this->retornaTrac($content);
+		$this->functions->SortIt($trac,2);	
+		for ($k=0;$k<count($trac);$k++) {
 			$dados = array();
-			$dados = $this->retornaVolta($this->trac,$k);
+			$dados = $this->retornaVolta($trac,$k);
 		}	
 		
 		$tadentro = false;	
-		$dados_txt = "Version,212<br><br>WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0<br>USER GRID,0,0,0,0,0<br><br>";
-		for ($i=0;$i<count($this->trac);$i++) {
-			if ($this->trac[$i][4]>=0) {
-				if ($this->trac[$i][4]>=$this->velmax) {
+		$dados_txt = "Version,212<br /><br />WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0<br />USER GRID,0,0,0,0,0<br /><br />";
+		for ($i=0;$i<count($trac);$i++) {
+			if ($trac[$i][4]>=0) {
+				if ($trac[$i][4]>=$this->velmax) {
 					$dados_txt .= "w,dms,";
-					$dados_txt .= $this->trac[$i][4].toFixed(2);
+					$dados_txt .= $trac[$i][4].toFixed(2);
 					$dados_txt .= ",";
-					$dados_txt .= $this->trac[$i][0].",".$this->trac[$i][1].",".$this->trac[$i][3]." ".$this->functions->toTime($this->trac[$i][2],$this->fuso).",".$this->trac[$i][5].",2,133,0,13<br>";
+					$dados_txt .= $trac[$i][0].",".$trac[$i][1].",".$trac[$i][3]." ".$this->functions->toTime($trac[$i][2],$this->fuso).",".$trac[$i][5].",2,133,0,13<br />";
 				}
 			}
 		}
-		$dados_txt .= "<br>";
-		for ($i=0;$i<count($this->$this->trac);$i++) {
-			if (!is_nan($this->trac[$i][0]) && !is_nan($this->trac[$i][2])) {
-				if ($this->trac[$i][4]>=$this->velmax){
+		$dados_txt .= "<br />";
+		for ($i=0;$i<count($this->$trac);$i++) {
+			if (!is_nan($trac[$i][0]) && !is_nan($trac[$i][2])) {
+				if ($trac[$i][4]>=$this->velmax){
 					$dados_txt .= "<font color=red>";
 				}
 				$dados_txt .= "t,dms,";
-				$dados_txt .= $this->trac[$i][0].",".$this->trac[$i][1].",".$this->trac[$i][3].",".$this->functions->toTime($this->trac[$i][2],$this->fuso).",".$this->trac[$i][5];
+				$dados_txt .= $trac[$i][0].",".$trac[$i][1].",".$trac[$i][3].",".$this->functions->toTime($trac[$i][2],$this->fuso).",".$trac[$i][5];
 				if ($i==0){
-					$dados_txt .= ",1<br>";
+					$dados_txt .= ",1<br />";
 				}
 				else{
-					$dados_txt .= ",0<br>";
+					$dados_txt .= ",0<br />";
 				}
-				if ($this->trac[$i][4]>=$this->velmax){
+				if ($trac[$i][4]>=$this->velmax){
 					$dados_txt .= "</font>";
 				}
 			}
