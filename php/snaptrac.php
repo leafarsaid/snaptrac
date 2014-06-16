@@ -7,19 +7,50 @@ class snaptrac{
 	public $velmax;
 	public $fuso;
 	public $gate;
+	public $pontos;
+	public $lib;
 	public $functions;
 	
-	public function __construct(){
+	public function __construct($st){
 		
-		$st = parse_ini_file("../snaptrac.ini",true);
 		$this->velmax = $st['Parametros']['velmax'];
 		$this->fuso = $st['Parametros']['fuso'];
 		$this->gate = $st['Parametros']['gate'];
+		$this->pontos = $st['Parametros']['pontos'];
 		$this->functions = new functions();
+		$this->lib = array(
+				'PHPExcel'	=>	'lib/PHPExcel/Classes/PHPExcel.php'
+				);
 	}
 
-	public function getPoints($content) {	
+	public function getPoints(){
 		
+		require_once $this->lib['PHPExcel'];
+		
+		$objReader = new PHPExcel_Reader_Excel5();
+		$objReader->setReadDataOnly(true);
+		$objPHPExcel = $objReader->load($this->pontos);
+
+		$rowIterator = $objPHPExcel->getActiveSheet()->getRowIterator();
+		
+		$array_data = array();
+		foreach($rowIterator as $row){
+			$cellIterator = $row->getCellIterator();
+			$cellIterator->setIterateOnlyExistingCells(false);
+			
+			$pointer = '';			 
+			foreach ($cellIterator as $cell) {
+				if('A' == $cell->getColumn()){
+					$pointer = $cell->getCalculatedValue();
+					$array_data[$pointer] = '';
+				} else if('B' == $cell->getColumn()){
+					$array_data[$pointer] = $cell->getCalculatedValue();
+				}
+			}
+		}
+		return $array_data;
+		
+		/* 
 		$quebra = explode("\n",$content);
 		
 		for ($i=0;$i<count($quebra);$i++) {
@@ -66,6 +97,7 @@ class snaptrac{
 		}
 		
 		return $cont;
+		 */
 	}
 	
 	public function retornaTrac($content) {
@@ -128,7 +160,7 @@ class snaptrac{
 		return $trac;
 	}
 	
-	public function retornaVolta($trac,$num_ponto) {
+	public function retornaVolta($trac,$num_ponto){
 		$distancias = array();
 		$horarios = array();
 	
@@ -165,7 +197,7 @@ class snaptrac{
 		return $volta;
 	}
 	
-	public function geraRel($content,$pt_nome) {		
+	public function geraRel($content,$pt_nome){
 		$radarEntrada = array();
 		$radarSaida = array();
 		$trac = array();
@@ -192,7 +224,7 @@ class snaptrac{
 		return $dados_txt;		
 	}
 	
-	public function geraRadares($content) {
+	public function geraRadares($content){
 		
 		$radarEntrada = array();
 		$radarSaida = array();
@@ -233,7 +265,7 @@ class snaptrac{
 		return $dados_txt;
 	}
 		
-	public function geraRadares2($content) {
+	public function geraRadares2($content){
 		
 		$radarEntrada = array();
 		$radarSaida = array();
@@ -247,16 +279,16 @@ class snaptrac{
 		
 		$tadentro = false;	
 		$dados_txt = "Version,212<br /><br />WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0<br />USER GRID,0,0,0,0,0<br /><br />";
-		for ($i=0;$i<$k<count($trac);$i++) {
-			if ($trac[$i][4]>=0) {
-				if ($trac[$i][4]>=$this->velmax) {
+		for ($i=0;$i<count($trac);$i++){
+			if ($trac[$i][4]>=0){
+				if ($trac[$i][4]>=$this->velmax){
 					$tadentro = false;
-					for ($k=0;$k<count($radarEntrada);$k++) {
-						if ($trac[$i][2]>=$radarEntrada[$k] && $trac[$i][2]<=$radarSaida[$k]) {
+					for ($k=0;$k<count($radarEntrada);$k++){
+						if ($trac[$i][2]>=$radarEntrada[$k] && $trac[$i][2]<=$radarSaida[$k]){
 							$tadentro = true;
 						}
 					}
-					if ($tadentro) {
+					if ($tadentro){
 						$dados_txt .= "w,dms,";
 						$dados_txt .= round($trac[$i][4],2);
 						$dados_txt .= ",";
@@ -294,7 +326,7 @@ class snaptrac{
 		return $dados_txt;
 	}
 	
-	public function geraRadaresTot($content) {
+	public function geraRadaresTot($content){
 		
 		$tracla = array();
 		$traclo = array();
@@ -362,7 +394,7 @@ class snaptrac{
 		return $dados_txt;
 	}
 
-	public function geraRadaresTot2($content) {
+	public function geraRadaresTot2($content){
 		
 		$radarEntrada = array();
 		$radarSaida = array();
