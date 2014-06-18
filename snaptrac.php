@@ -4,9 +4,10 @@ include_once 'php/snaptrac.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
-$pontos = $snaptrac->getPoints();
+$snaptrac->getPoints();
+$snaptrac->retornaTrac();
 
 echo '<pre>';
-var_dump($pontos);
+var_dump($snaptrac->trac);
 echo '</pre>';
 ?>

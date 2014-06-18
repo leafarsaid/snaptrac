@@ -1,35 +1,90 @@
 <?php
 
-include_once 'functions.php';
+require_once 'functions.php';
+require_once 'lib/PHPExcel/Classes/PHPExcel.php';
 
 class snaptrac{
 	
+	/**
+	 * Velocidade máxima
+	 * @var integer
+	 */
 	public $velmax;
+	
+	/**
+	 * Fuso
+	 * @var integer
+	 */
 	public $fuso;
+	
+	/**
+	 * Gate
+	 * @var integer
+	 */
 	public $gate;
-	public $pontos;
-	public $lib;
+	
+	/**
+	 * Caminho para arquivo da planilha de pontos
+	 * @var string
+	 */
+	public $arq_pontos;
+	
+	/**
+	 * Caminho para arquivo do relatório GPS
+	 * @var string
+	 */
+	public $arq_trac;
+	
+	/**
+	 * Matriz de coordenadas da planinha de pontos
+	 * @var unknown_type
+	 */
+	public $coordenadas;
+	
+	/**
+	 * Relatório do GPS
+	 * @var array
+	 */
+	public $trac;
+		
+	/**
+	 * Funções
+	 * @var object
+	 */
 	public $functions;
 	
+	/**
+	 * 
+	 * Método construtor
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 18/06/2014
+	 * @param array $st
+	 */
 	public function __construct($st){
 		
 		$this->velmax = $st['Parametros']['velmax'];
 		$this->fuso = $st['Parametros']['fuso'];
 		$this->gate = $st['Parametros']['gate'];
-		$this->pontos = $st['Parametros']['pontos'];
+		$this->arq_pontos = $st['Parametros']['pontos'];
+		$this->arq_trac = 'Imports/arquivo_teste.txt';
 		$this->functions = new functions();
-		$this->lib = array(
-				'PHPExcel'	=>	'lib/PHPExcel/Classes/PHPExcel.php'
-				);
 	}
 
+	/**
+	 * 
+	 * Converte as coordenadas da planinha em uma matriz de pontos
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 18/06/2014
+	 */
 	public function getPoints(){
 		
-		require_once $this->lib['PHPExcel'];
+		
 		
 		$objReader = new PHPExcel_Reader_Excel5();
 		$objReader->setReadDataOnly(true);
-		$objPHPExcel = $objReader->load($this->pontos);
+		$objPHPExcel = $objReader->load($this->arq_pontos);
 
 		$rowIterator = $objPHPExcel->getActiveSheet()->getRowIterator();
 		
@@ -44,11 +99,18 @@ class snaptrac{
 					$pointer = $cell->getCalculatedValue();
 					$array_data[$pointer] = '';
 				} else if('B' == $cell->getColumn()){
-					$array_data[$pointer] = $cell->getCalculatedValue();
+					$coords = $cell->getCalculatedValue();
+					$coords = str_replace('S', '-', $coords);
+					$coords = str_replace('N', '+', $coords);
+					$coords = str_replace('W', '-', $coords);
+					$coords = str_replace('E', '+', $coords);
+					$exp = explode(' ',$coords);
+					$array_data[$pointer]['lat'] = $exp[0]*1;
+					$array_data[$pointer]['lon'] = $exp[1]*1;
 				}
 			}
 		}
-		return $array_data;
+		$this->coordenadas = $array_data;
 		
 		/* 
 		$quebra = explode("\n",$content);
@@ -100,15 +162,26 @@ class snaptrac{
 		 */
 	}
 	
-	public function retornaTrac($content) {
-		$tracla = array();
-		$traclo = array();
-		$tracdata = array();
-		$trachor = array();
-		$tracdist = array();
-		$tracalt = array();
-		$trac = array();
+	public function retornaTrac(){
 		
+		$handle = fopen($this->arq_trac, "r");
+		if ($handle){
+		    while (!feof($handle)){
+		        $buffer = fgets($handle, 4096);
+		        $arr_buffer = explode(',',$buffer);
+		        if ($buffer[0]=='t'){
+		        	$arr_trac['latitude'] = $arr_buffer[2]*1;
+		        	$arr_trac['longitude'] = $arr_buffer[3]*1;
+		        	$arr_trac['data'] = $arr_buffer[4];
+		        	$arr_trac['hora'] = $this->functions->toSec($arr_buffer[5]);
+		        	$arr_trac['distancia'] = '';
+		        	$arr_trac['altitude'] = $arr_buffer[6];
+		        	$this->trac[] = $arr_trac;
+		        }
+		    }
+		    fclose($handle);
+		}
+		/*
 		$quebra = explode('\n',$content);
 		
 		for ($i=5;$i<count($quebra);$i++) {
@@ -129,7 +202,7 @@ class snaptrac{
 			//longitudes
 			array_push($traclo,$lon2);
 			//datas
-			array_push($tracdata,$quebra2[4]);
+			array_push($tracdata,$quebra2[4]);	
 			//horas
 			array_push($trachor,$this->functions->toSec($quebra2[5]));
 	
@@ -152,12 +225,13 @@ class snaptrac{
 			$trac[$i][1]=$traclo[$i];
 			$trac[$i][2]=$trachor[$i];
 			$trac[$i][3]=$tracdata[$i];
-			$trac[$i][4]=$distancia($tracla[$i-1],$traclo[$i-1],$tracla[$i],$traclo[$i])/(($trachor[$i]-$trachor[$i-1])/3600);
+			$trac[$i][4]=$this->functions->distancia($tracla[$i-1],$traclo[$i-1],$tracla[$i],$traclo[$i])/(($trachor[$i]-$trachor[$i-1])/3600);
 			$trac[$i][5]=$tracdist[$i];
 			$trac[$i][6]=$tracalt[$i];
 		}
 	
 		return $trac;
+		*/
 	}
 	
 	public function retornaVolta($trac,$num_ponto){
@@ -176,7 +250,7 @@ class snaptrac{
 		for ($i=0;$i<count($horarios);$i++) {
 			//se a atual linha estiver no gate
 			if (!is_nan($distancias[$i]) && $distancias[$i]!=99999999) {
-				if ($distancias[$i]<temp1) {
+				if ($distancias[$i]<$temp1) {
 					$temp1=$distancias[$i];
 					$temp2=$horarios[$i];
 				}
@@ -198,17 +272,15 @@ class snaptrac{
 	}
 	
 	public function geraRel($content,$pt_nome){
-		$radarEntrada = array();
-		$radarSaida = array();
 		$trac = array();
-		$trac = retornaTrac(content);
+		$trac = retornaTrac($content);
 	
 		$this->functions->SortIt($trac,2);
 		$dados_txt = "";
 	
 		for ($k=0;$k<count($pt_nome);$k++) {
 			$dados = array();
-			$dados = retornaVolta(trac,k);
+			$dados = retornaVolta($trac,$k);
 	
 			$dados_txt .= "Relatório do ponto:";
 			$dados_txt .= $pt_nome[$k];
