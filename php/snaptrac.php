@@ -105,8 +105,8 @@ class snaptrac{
 					$coords = str_replace('W', '-', $coords);
 					$coords = str_replace('E', '+', $coords);
 					$exp = explode(' ',$coords);
-					$array_data[$pointer]['lat'] = $exp[0]*1;
-					$array_data[$pointer]['lon'] = $exp[1]*1;
+					$array_data[$pointer]['latitude'] = $exp[0]*1;
+					$array_data[$pointer]['longitude'] = $exp[1]*1;
 				}
 			}
 		}
@@ -164,22 +164,58 @@ class snaptrac{
 	
 	public function retornaTrac(){
 		
+		$temp_trac = array();
+		
 		$handle = fopen($this->arq_trac, "r");
 		if ($handle){
 		    while (!feof($handle)){
 		        $buffer = fgets($handle, 4096);
 		        $arr_buffer = explode(',',$buffer);
 		        if ($buffer[0]=='t'){
+		        	$hora = $this->functions->toSec($arr_buffer[5]);
+		        	
 		        	$arr_trac['latitude'] = $arr_buffer[2]*1;
 		        	$arr_trac['longitude'] = $arr_buffer[3]*1;
 		        	$arr_trac['data'] = $arr_buffer[4];
-		        	$arr_trac['hora'] = $this->functions->toSec($arr_buffer[5]);
-		        	$arr_trac['distancia'] = '';
-		        	$arr_trac['altitude'] = $arr_buffer[6];
-		        	$this->trac[] = $arr_trac;
+		        	$arr_trac['hora'] = $hora;
+		        	$arr_trac['horaAnterior'] = $horaAnterior;
+		        	$arr_trac['distancia'] = $this->functions->distancia($temp_trac[$horaAnterior]['latitude'],$temp_trac[$horaAnterior]['longitude'],$temp_trac[$hora]['latitude'],$temp_trac[$hora]['longitude']);
+		        	$arr_trac['altitude'] = floatval($arr_buffer[6]);
+		        	$temp_trac[$hora] = $arr_trac;
+		        	
+		        	$horaAnterior = $hora;
 		        }
 		    }
 		    fclose($handle);
+		    
+		    $voltaAnterior = 0;
+		    $volta = 1;
+		    $num_volta = 0;
+		    foreach ($temp_trac AS $point){
+		    	if($voltaAnterior != $volta){
+		    		$volta = $point['hora'];
+		    		$coord = array(
+		    				'latitude' => $point['latitude'],
+		    				'longitude' => $point['longitude']
+		    		);
+		    	}
+		    	$this->trac[$volta][$point['hora']] = $point;
+		    	$this->trac[$volta][$point['hora']]['volta'] = $num_volta;
+		    	
+		    	//Se a volta 
+		    	if (	($volta + 50) < $point['hora'] 
+		    			&& $this->functions->distancia($coord['latitude'],$coord['longitude'],$point['latitude'],$point['longitude']) < $this->gate){
+		    		
+		    		$volta = $point['hora'];
+		    		$coord = array(
+		    				'latitude' => $point['latitude'],
+		    				'longitude' => $point['longitude']
+		    		);
+		    		$num_volta++;
+		    	}
+		    	
+		    	$voltaAnterior = $volta;
+		    }
 		}
 		/*
 		$quebra = explode('\n',$content);
