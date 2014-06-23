@@ -29,4 +29,4 @@ O processo é feito pelo arquivo snaptrac.bat (não existe ainda) que processa t
 
 1. Points: Pasta onde sugere-se colocar o arquivo de pontos;
 2. Imports: Pasta que será lida, com os arquivos que possuam as informações de trilhas;
-3. Reports: Pasta onde serão escritos relatórios, um por arquivo na pasta 'Imports';
+3. Reports: Pasta onde serão escritos relatórios, um por arquivo da pasta 'Imports';
