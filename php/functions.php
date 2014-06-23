@@ -27,17 +27,18 @@ class functions{
 		return $hora+":"+$mm+":"+$ss;
 	}
 	
-	public function distancia($pt1_la,$pt1_lo,$pt2_la,$pt2_lo) {
-		$arco1 = 90 - $pt1_la;
-		$arco2 = 90 - $pt2_la;
-		$diff = abs(abs($pt2_lo)-abs($pt1_lo));
+	public function distancia($pt1,$pt2) {	
+	
+		$arco1 = 90 - $pt1['latitude'];
+		$arco2 = 90 - $pt2['latitude'];
+		$diff = abs(abs($pt2['longitude'])-abs($pt1['longitude']));
 		$pre_dista = cos($this->toGrad($arco1))*cos($this->toGrad($arco2));
 		$pre_distb = sin($this->toGrad($arco1))*sin($this->toGrad($arco2))*cos($this->toGrad($diff));
 		$pre_dist = $pre_dista + $pre_distb;
 		$pre_dist2 = $this->toRad(acos($pre_dist));
 		$dist = (40030 * $pre_dist2)/360;
 	
-		return $dist;
+		return floatval($dist);
 	}
 	
 	public function toGrad($num) {

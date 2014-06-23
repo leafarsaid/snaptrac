@@ -53,6 +53,10 @@ class snaptrac{
 	 */
 	public $functions;
 	
+	public $distancia;
+	public $distanciaAnterior;
+	public $linhas;
+	
 	/**
 	 * 
 	 * Método construtor
@@ -79,9 +83,7 @@ class snaptrac{
 	 * @version 18/06/2014
 	 */
 	public function getPoints(){
-		
-		
-		
+				
 		$objReader = new PHPExcel_Reader_Excel5();
 		$objReader->setReadDataOnly(true);
 		$objPHPExcel = $objReader->load($this->arq_pontos);
@@ -107,59 +109,12 @@ class snaptrac{
 					$exp = explode(' ',$coords);
 					$array_data[$pointer]['latitude'] = $exp[0]*1;
 					$array_data[$pointer]['longitude'] = $exp[1]*1;
+					$array_data[$pointer]['id'] = $pointer;
 				}
 			}
 		}
+		
 		$this->coordenadas = $array_data;
-		
-		/* 
-		$quebra = explode("\n",$content);
-		
-		for ($i=0;$i<count($quebra);$i++) {
-			if ($quebra[$i]!="" && $quebra[$i+1]!="") {
-				
-				array_push($pt_nome,$quebra[$i]);
-				$quebra2 = explode(" ",$quebra[$i+1]);
-				
-				if ($quebra2[0][2] != " "){
-					if ($quebra2[0][0] == "S"){
-						$sinal1 = "-";
-					} else{
-						$sinal1 = "+";
-					}
-					if ($quebra2[1][0] == "W"){
-						$sinal2 = "-";
-					} else{
-						$sinal2 = "+";
-					}
-					array_push($pcla,$sinal1.substr($quebra2[0],0,1));
-					array_push($pclo,$sinal2.substr($quebra2[1],0,1));
-				} else{
-					if ($quebra2[0][0] == "S"){
-						$sinal1 = "-";
-					} else{
-						$sinal1 = "+";
-					}
-					if ($quebra2[2][0] == "W"){
-						$sinal2 = "-";
-					} else{
-						$sinal2 = "+";
-					}
-					array_push($pcla,($sinal1.(60*60*($quebra2[0][1].$quebra2[0][2]).(60*($quebra2[1]))/3600)));
-					array_push($pclo,($sinal2.(60*60*($quebra2[2][1].$quebra2[2][2]).(60*($quebra2[3]))/3600)));
-				}
-			}
-		}
-		$cont="";
-		for ($i=0;$i<count($pcla);$i++) {
-			$cont .= $i."-> ponto:".$pt_nome[$i]." lat:".$pcla[$i]."\n";
-		}
-		for ($i=0;$i<count($pclo);$i++) {
-			$cont .= $i."-> ponto:".$pt_nome[$i]." long:".$pclo[$i]."\n";
-		}
-		
-		return $cont;
-		 */
 	}
 	
 	public function retornaTrac(){
@@ -168,6 +123,7 @@ class snaptrac{
 		
 		$handle = fopen($this->arq_trac, "r");
 		if ($handle){
+			$this->linhas = 0;
 		    while (!feof($handle)){
 		        $buffer = fgets($handle, 4096);
 		        $arr_buffer = explode(',',$buffer);
@@ -178,96 +134,30 @@ class snaptrac{
 		        	$arr_trac['longitude'] = $arr_buffer[3]*1;
 		        	$arr_trac['data'] = $arr_buffer[4];
 		        	$arr_trac['hora'] = $hora;
-		        	$arr_trac['horaAnterior'] = $horaAnterior;
-		        	$arr_trac['distancia'] = $this->functions->distancia($temp_trac[$horaAnterior]['latitude'],$temp_trac[$horaAnterior]['longitude'],$temp_trac[$hora]['latitude'],$temp_trac[$hora]['longitude']);
+		        	$arr_trac['horaPura'] = $arr_buffer[5];
+		        	//foreach ($this->coordenadas AS $key => $coord){
+					//	$arr_trac['distancia'][$key] = $this->functions->distancia($arr_trac,$coord);
+					//}
 		        	$arr_trac['altitude'] = floatval($arr_buffer[6]);
-		        	$temp_trac[$hora] = $arr_trac;
-		        	
-		        	$horaAnterior = $hora;
+					$this->trac[$hora] = $arr_trac; 
+					$this->linhas++;
 		        }
 		    }
-		    fclose($handle);
-		    
-		    $voltaAnterior = 0;
-		    $volta = 1;
-		    $num_volta = 0;
-		    foreach ($temp_trac AS $point){
-		    	if($voltaAnterior != $volta){
-		    		$volta = $point['hora'];
-		    		$coord = array(
-		    				'latitude' => $point['latitude'],
-		    				'longitude' => $point['longitude']
-		    		);
-		    	}
-		    	$this->trac[$volta][$point['hora']] = $point;
-		    	$this->trac[$volta][$point['hora']]['volta'] = $num_volta;
-		    	
-		    	//Se a volta 
-		    	if (	($volta + 50) < $point['hora'] 
-		    			&& $this->functions->distancia($coord['latitude'],$coord['longitude'],$point['latitude'],$point['longitude']) < $this->gate){
-		    		
-		    		$volta = $point['hora'];
-		    		$coord = array(
-		    				'latitude' => $point['latitude'],
-		    				'longitude' => $point['longitude']
-		    		);
-		    		$num_volta++;
-		    	}
-		    	
-		    	$voltaAnterior = $volta;
-		    }
-		}
-		/*
-		$quebra = explode('\n',$content);
-		
-		for ($i=5;$i<count($quebra);$i++) {
-			$quebra2 = $quebra[$i].split(',');
-			$lat = $quebra2[2]+"";
-			$lon = $quebra2[3]+"";
-			if ($lat[6] == "'") {
-				$lat2 = ($lat[0] . ($lat[1].$lat[2]) . ($lat[4].$lat[5])/60) . round(($lat[8].$lat[9].$lat[10].$lat[11].$lat[12].$lat[13].$lat[14].$lat[15])/3600,6);
-				$lon2 = ($lon[0] . ($lon[2].$lon[3]) . ($lon[5].$lon[6])/60) . round(($lon[9].$lon[10].$lon[11].$lon[12].$lon[13].$lon[14].$lon[15].$lon[16])/3600,6);
-				//$lat2 = (lat2*1).toFixed(6)+"";
-				//$lon2 = (lon2*1).toFixed(6)+"";
-			} else {
-				$lat2 = $lat;
-				$lon2 = $lon;
-			}
-			//latitudes
-			array_push($tracla,$lat2);
-			//longitudes
-			array_push($traclo,$lon2);
-			//datas
-			array_push($tracdata,$quebra2[4]);	
-			//horas
-			array_push($trachor,$this->functions->toSec($quebra2[5]));
-	
-			//distancias
-			$dist = array();
-			for ($k=0;$k<count($pcla);$k++) {
-				$dist[$k] = $this->functions->distancia($pcla[$k],$pclo[$k],$lat2,$lon2);
-				$dist[$k] = $dist[$k]*1000;
-				if ($dist[$k]>$this->gate) {
-					$dist[$k]=99999999;
+		    fclose($handle);			
+						
+			foreach ($this->coordenadas AS $key => $coord){
+				$menorDistancia = 99999999999999999999;
+				foreach ($this->trac AS $key2 => $point){
+					$distancia = $this->functions->distancia($point,$coord);
+					if ($distancia <= $menorDistancia){
+						$this->coordenadas[$key]['snap'] = $point;
+						$this->coordenadas[$key]['distancia'] = $distancia;
+						$this->coordenadas[$key]['hora'] = $point['hora'];
+						$menorDistancia = $distancia;
+					}
 				}
 			}
-			array_push($tracdist,$dist);
-			//altitudes
-			array_push($tracalt,$quebra2[6]);
 		}
-		for ($i=0;$i<count($tracla);$i++) {
-			$trac[$i] = array();
-			$trac[$i][0]=$tracla[$i];
-			$trac[$i][1]=$traclo[$i];
-			$trac[$i][2]=$trachor[$i];
-			$trac[$i][3]=$tracdata[$i];
-			$trac[$i][4]=$this->functions->distancia($tracla[$i-1],$traclo[$i-1],$tracla[$i],$traclo[$i])/(($trachor[$i]-$trachor[$i-1])/3600);
-			$trac[$i][5]=$tracdist[$i];
-			$trac[$i][6]=$tracalt[$i];
-		}
-	
-		return $trac;
-		*/
 	}
 	
 	public function retornaVolta($trac,$num_ponto){
