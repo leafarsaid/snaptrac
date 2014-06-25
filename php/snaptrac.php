@@ -39,7 +39,7 @@ class snaptrac{
 	 * Matriz de coordenadas da planinha de pontos
 	 * @var unknown_type
 	 */
-	public $coordenadas;
+	public $points;
 	
 	/**
 	 * Relatório do GPS
@@ -53,9 +53,11 @@ class snaptrac{
 	 */
 	public $functions;
 	
-	public $distancia;
-	public $distanciaAnterior;
-	public $linhas;
+	public $steps_length;
+	
+	public $steps;
+	
+	public $radar;
 	
 	/**
 	 * 
@@ -69,7 +71,8 @@ class snaptrac{
 		
 		$this->velmax = $st['Parametros']['velmax'];
 		$this->fuso = $st['Parametros']['fuso'];
-		$this->gate = $st['Parametros']['gate'];
+		$this->gate = floatval($st['Parametros']['gate']);
+		$this->steps_length = floatval($st['Parametros']['steps_length']);
 		$this->arq_pontos = $st['Parametros']['pontos'];
 		$this->arq_trac = 'Imports/arquivo_teste.txt';
 		$this->functions = new functions();
@@ -114,52 +117,89 @@ class snaptrac{
 			}
 		}
 		
-		$this->coordenadas = $array_data;
+		$this->points = $array_data;
 	}
 	
-	public function retornaTrac(){
+	/**
+	 * 
+	 * Processa a trilha
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 25/06/2014
+	 */
+	public function tracProcess(){
 		
-		$temp_trac = array();
+		$this->getPoints();
 		
 		$handle = fopen($this->arq_trac, "r");
 		if ($handle){
-			$this->linhas = 0;
+
+			$previousKey = 0;
+			//acumulador de distância
+			$dist_acum = 0;
+			
 		    while (!feof($handle)){
 		        $buffer = fgets($handle, 4096);
 		        $arr_buffer = explode(',',$buffer);
 		        if ($buffer[0]=='t'){
+		        	//Pega todas as informações de cada ponto da trilha
 		        	$hora = $this->functions->toSec($arr_buffer[5]);
 		        	
-		        	$arr_trac['latitude'] = $arr_buffer[2]*1;
-		        	$arr_trac['longitude'] = $arr_buffer[3]*1;
-		        	$arr_trac['data'] = $arr_buffer[4];
-		        	$arr_trac['hora'] = $hora;
-		        	$arr_trac['horaPura'] = $arr_buffer[5];
-		        	//foreach ($this->coordenadas AS $key => $coord){
-					//	$arr_trac['distancia'][$key] = $this->functions->distancia($arr_trac,$coord);
-					//}
-		        	$arr_trac['altitude'] = floatval($arr_buffer[6]);
-					$this->trac[$hora] = $arr_trac; 
-					$this->linhas++;
+		        	$this->trac[$hora]['latitude'] = $arr_buffer[2]*1;
+		        	$this->trac[$hora]['longitude'] = $arr_buffer[3]*1;
+		        	$this->trac[$hora]['data'] = $arr_buffer[4];
+		        	$this->trac[$hora]['hora'] = $arr_buffer[5];   	
+		        	$this->trac[$hora]['altitude'] = floatval($arr_buffer[6]);
+					if ($previousKey > 0){
+						$this->trac[$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$hora]);
+					} else{
+						$this->trac[$hora]['distancia'] = floatval(0);
+					}
+					$dist_acum += ($this->trac[$hora]['distancia']*1000);		
+					$this->trac[$hora]['distancia_acumulada'] = $dist_acum;
+					$vel = round(($this->trac[$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+					$vel = ($vel > 0) ? $vel : 0;
+					$this->trac[$hora]['velocidade'] = $vel;
+					if ($vel > $this->velmax){
+						$arr_radar = array(
+								'hora' 			=> $this->trac[$hora]['hora'],
+								'indice' 		=> $hora,
+								'velocidade' 	=> $vel
+								);
+						$this->radar[] = $arr_radar;
+						$this->trac[$hora]['ultrapassou_velmax'] = 'SIM';
+					} else{
+
+						$this->trac[$hora]['ultrapassou_velmax'] = 'NAO';
+					}
+					
+					$arr_step = $this->trac[$hora];
+					
+					//steps
+					if ($dist_acum >= $this->steps_length){				
+						$this->steps[$hora] = $arr_step;
+						$dist_acum = 0;
+					}
+					
+					$previousKey = $hora;
 		        }
 		    }
-		    fclose($handle);			
+		    fclose($handle);
 						
-			foreach ($this->coordenadas AS $key => $coord){
-				$menorDistancia = 99999999999999999999;
+			foreach ($this->points AS $key => $coord){
 				foreach ($this->trac AS $key2 => $point){
 					$distancia = $this->functions->distancia($point,$coord);
-					if ($distancia <= $menorDistancia){
-						$this->coordenadas[$key]['snap'] = $point;
-						$this->coordenadas[$key]['distancia'] = $distancia;
-						$this->coordenadas[$key]['hora'] = $point['hora'];
-						$menorDistancia = $distancia;
+					if ($distancia <= ($this->gate/1000)){
+						$this->points[$key]['snap'][] = $point;
 					}
 				}
 			}
 		}
 	}
 	
+	
+
+/*
 	public function retornaVolta($trac,$num_ponto){
 		$distancias = array();
 		$horarios = array();
@@ -438,5 +478,6 @@ class snaptrac{
 		
 		return $dados_txt;
 	}
+*/
 
 }
