@@ -145,6 +145,7 @@ class snaptrac{
 		        	//Pega todas as informações de cada ponto da trilha
 		        	$hora = $this->functions->toSec($arr_buffer[5]);
 		        	
+		        	$this->trac[$hora]['indice'] = $hora;
 		        	$this->trac[$hora]['latitude'] = $arr_buffer[2]*1;
 		        	$this->trac[$hora]['longitude'] = $arr_buffer[3]*1;
 		        	$this->trac[$hora]['data'] = $arr_buffer[4];
@@ -190,14 +191,95 @@ class snaptrac{
 				foreach ($this->trac AS $key2 => $point){
 					$distancia = $this->functions->distancia($point,$coord);
 					if ($distancia <= ($this->gate/1000)){
+						/*
+						 * guardando o bolo de pontos que fica perto do ponto
+						 * o método $this->pointProcess() refina depois esses pontos
+						 */
 						$this->points[$key]['snap'][] = $point;
 					}
 				}
 			}
 		}
+		
+		$this->pointProcess();
 	}
 	
+	/**
+	 * 
+	 * Processa os pontos da planilha para achar a tangente na trilha
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 26/06/2014
+	 */
+	public function pointProcess(){
+		
+		$temp_arr = array();
+		
+		foreach ($this->points AS $key => $point){
+			
+			$group = $this->group($point['snap'],300);
+			$this->points[$key]['snap'] = array();
+			
+			foreach($group AS $lap){
+				$this->points[$key]['snap'][] = $this->nearest($point, $lap);
+			}
+		}
+	}
 	
+	/**
+	 * 
+	 * Retorna ponto mais próximo de uma lista para uma referência
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 26/06/2014
+	 * @param unknown_type $point Referência
+	 * @param unknown_type $arrPoints Lista
+	 * @return Ambigous <multitype:, unknown>
+	 */
+	public function nearest($point, $arrPoints){
+		
+		$retorno = array();
+		
+		$distanciaAnterior = 999999999999999999999;
+		
+		foreach($arrPoints AS $tracPoint){
+			$distancia = $this->functions->distancia($tracPoint,$point);
+			if ($distancia < $distanciaAnterior){
+				$retorno = $tracPoint;
+			}
+			$distanciaAnterior = $distancia;
+		}
+		
+		return $retorno;
+		
+	}
+	
+	/**
+	 * 
+	 * Agrupa pontos dentro de um mesmo intervalo
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 26/06/2014
+	 * @param unknown_type $arrPoints
+	 * @param unknown_type $interval
+	 */
+	public function group($arrPoints, $interval){
+		$group = array();
+		
+		$indiceAnterior = 0;
+		$j = 0;
+				
+		foreach($arrPoints AS $tracPoint){
+			$indice = $tracPoint['indice'];
+			if (($indice-$indiceAnterior) > $interval){
+				$j++;
+			}				
+			$group[$j][] = $tracPoint;
+			$indiceAnterior = $indice;
+		}
+		
+		return $group;
+	}
 
 /*
 	public function retornaVolta($trac,$num_ponto){
