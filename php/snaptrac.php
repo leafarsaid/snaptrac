@@ -30,8 +30,20 @@ class snaptrac{
 	public $arq_pontos;
 	
 	/**
-	 * Caminho para arquivo do relatório GPS
+	 * Caminho para arquivos competidores
 	 * @var string
+	 */
+	public $import_path;
+	
+	/**
+	 * Caminho para relatórios
+	 * @var string
+	 */
+	public $report_path;
+	
+	/**
+	 * Array com caminhos para arquivos dos competidores
+	 * @var array
 	 */
 	public $arq_trac;
 	
@@ -74,8 +86,20 @@ class snaptrac{
 		$this->gate = floatval($st['Parametros']['gate']);
 		$this->steps_length = floatval($st['Parametros']['steps_length']);
 		$this->arq_pontos = $st['Parametros']['pontos'];
-		$this->arq_trac = 'Imports/arquivo_teste.txt';
+		$this->import_path = $st['Parametros']['import_path'];
+		$this->report_path = $st['Parametros']['report_path'];
 		$this->functions = new functions();
+	}
+	
+	public function getFiles(){
+		if ($handle = opendir($this->import_path)) {
+			while (false !== ($file = readdir($handle))) {
+				if ($file != "." && $file != "..") {
+					$this->arq_trac[] = $file;
+				}
+			}
+			closedir($handle);
+		}
 	}
 
 	/**
@@ -129,79 +153,94 @@ class snaptrac{
 	 */
 	public function tracProcess(){
 		
-		$this->getPoints();
+		try{
 		
-		$handle = fopen($this->arq_trac, "r");
-		if ($handle){
-
-			$previousKey = 0;
-			//acumulador de distância
-			$dist_acum = 0;
+			$this->getPoints();
+			$this->getFiles();
 			
-		    while (!feof($handle)){
-		        $buffer = fgets($handle, 4096);
-		        $arr_buffer = explode(',',$buffer);
-		        if ($buffer[0]=='t'){
-		        	//Pega todas as informações de cada ponto da trilha
-		        	$hora = $this->functions->toSec($arr_buffer[5]);
-		        	
-		        	$this->trac[$hora]['indice'] = $hora;
-		        	$this->trac[$hora]['latitude'] = $arr_buffer[2]*1;
-		        	$this->trac[$hora]['longitude'] = $arr_buffer[3]*1;
-		        	$this->trac[$hora]['data'] = $arr_buffer[4];
-		        	$this->trac[$hora]['hora'] = $arr_buffer[5];   	
-		        	$this->trac[$hora]['altitude'] = floatval($arr_buffer[6]);
-					if ($previousKey > 0){
-						$this->trac[$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$hora]);
-					} else{
-						$this->trac[$hora]['distancia'] = floatval(0);
-					}
-					$dist_acum += ($this->trac[$hora]['distancia']*1000);		
-					$this->trac[$hora]['distancia_acumulada'] = $dist_acum;
-					$vel = round(($this->trac[$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
-					$vel = ($vel > 0) ? $vel : 0;
-					$this->trac[$hora]['velocidade'] = $vel;
-					if ($vel > $this->velmax){
-						$arr_radar = array(
-								'hora' 			=> $this->trac[$hora]['hora'],
-								'indice' 		=> $hora,
-								'velocidade' 	=> $vel
-								);
-						$this->radar[] = $arr_radar;
-						$this->trac[$hora]['ultrapassou_velmax'] = 'SIM';
-					} else{
-
-						$this->trac[$hora]['ultrapassou_velmax'] = 'NAO';
-					}
-					
-					$arr_step = $this->trac[$hora];
-					
-					//steps
-					if ($dist_acum >= $this->steps_length){				
-						$this->steps[$hora] = $arr_step;
+			foreach ($this->arq_trac AS $file){
+				$folder = str_replace(".", "_", $file);
+				
+				//se já não existir
+				if (!is_dir($this->report_path."/".$folder)){
+				
+					$handle = fopen($this->import_path."/".$file, "r");
+					if ($handle){
+			
+						$previousKey = 0;
+						//acumulador de distância
 						$dist_acum = 0;
+						
+					    while (!feof($handle)){
+					        $buffer = fgets($handle, 4096);
+					        $arr_buffer = explode(',',$buffer);
+					        if ($buffer[0]=='t'){
+					        	//Pega todas as informações de cada ponto da trilha
+					        	$hora = $this->functions->toSec($arr_buffer[5]);
+					        	
+					        	$this->trac[$hora]['indice'] = $hora;
+					        	$this->trac[$hora]['latitude'] = $arr_buffer[2]*1;
+					        	$this->trac[$hora]['longitude'] = $arr_buffer[3]*1;
+					        	$this->trac[$hora]['data'] = $arr_buffer[4];
+					        	$this->trac[$hora]['hora'] = $arr_buffer[5];   	
+					        	$this->trac[$hora]['altitude'] = floatval($arr_buffer[6]);
+								if ($previousKey > 0){
+									$this->trac[$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$hora]);
+								} else{
+									$this->trac[$hora]['distancia'] = floatval(0);
+								}
+								$dist_acum += ($this->trac[$hora]['distancia']*1000);		
+								$this->trac[$hora]['distancia_acumulada'] = $dist_acum;
+								$vel = round(($this->trac[$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+								$vel = ($vel > 0) ? $vel : 0;
+								$this->trac[$hora]['velocidade'] = $vel;
+								if ($vel > $this->velmax){
+									$arr_radar = array(
+											'hora' 			=> $this->trac[$hora]['hora'],
+											'indice' 		=> $hora,
+											'velocidade' 	=> $vel
+											);
+									$this->radar[] = $arr_radar;
+									$this->trac[$hora]['ultrapassou_velmax'] = 'SIM';
+								} else{
+			
+									$this->trac[$hora]['ultrapassou_velmax'] = 'NAO';
+								}
+								
+								$arr_step = $this->trac[$hora];
+								
+								//steps
+								if ($dist_acum >= $this->steps_length){				
+									$this->steps[$hora] = $arr_step;
+									$dist_acum = 0;
+								}
+								
+								$previousKey = $hora;
+					        }
+					    }
+					    fclose($handle);
+									
+						foreach ($this->points AS $key => $coord){
+							foreach ($this->trac AS $key2 => $point){
+								$distancia = $this->functions->distancia($point,$coord);
+								if ($distancia <= ($this->gate/1000)){
+									/*
+									 * guardando o bolo de pontos que fica perto do ponto
+									 * o método $this->pointProcess() refina depois esses pontos
+									 */
+									$this->points[$key]['snap'][] = $point;
+								}
+							}
+						}
 					}
 					
-					$previousKey = $hora;
-		        }
-		    }
-		    fclose($handle);
-						
-			foreach ($this->points AS $key => $coord){
-				foreach ($this->trac AS $key2 => $point){
-					$distancia = $this->functions->distancia($point,$coord);
-					if ($distancia <= ($this->gate/1000)){
-						/*
-						 * guardando o bolo de pontos que fica perto do ponto
-						 * o método $this->pointProcess() refina depois esses pontos
-						 */
-						$this->points[$key]['snap'][] = $point;
-					}
+					$this->pointProcess();
+					$this->reportFile($file);
 				}
 			}
+		} catch (Exception $e){
+			
 		}
-		
-		$this->pointProcess();
 	}
 	
 	/**
@@ -280,7 +319,50 @@ class snaptrac{
 		
 		return $group;
 	}
-
+	
+	
+	public function reportFile($file){
+		
+		$folder = str_replace(".", "_", $file);
+		
+		$arr_vars = array('steps','radar','trac');
+		
+		foreach ($arr_vars AS $var){
+			
+			$path = $this->report_path."/".$folder;
+			if (!is_dir($path)){
+				mkdir($path, 0777);
+			}
+			$path = $this->report_path."/".$folder."/$var.htm";
+			touch($path);			
+			$handle = fopen($path, "w");
+			if ($handle){
+				ob_start();				
+				echo "<pre>";
+				var_dump($this->$var,TRUE);
+				echo "</pre>";	
+				$string = ob_get_contents();
+				ob_end_clean();
+				fwrite($handle, $string);
+			}
+			fclose($handle);
+		}
+		
+	}
+	
+	/* 
+	public function arrayToTxt($arr){
+		$return = "";
+		foreach($arr AS $key => $val){
+			if (is_array($val)){
+				$this->arrayToTxt($val);
+			} else{
+				$return .= sprintf($key." => ".$val."\n");
+			}
+		}
+		return $return;
+	}
+ */
 /*
 	public function retornaVolta($trac,$num_ponto){
 		$distancias = array();
