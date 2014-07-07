@@ -61,18 +61,4 @@ class functions{
 		
 		return $tosec;
 	}
-	
-	public function getFiles($import_path){
-		$arq_trac = array();
-		
-		if ($handle = opendir($import_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file != "." && $file != "..") {
-					$arq_trac[] = $file;
-				}
-			}
-			closedir($handle);
-		}
-		return $arq_trac;
-	}
 }

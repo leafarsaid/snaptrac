@@ -7,8 +7,8 @@ $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
 $snaptrac->tracProcess();
 
-echo '<pre>';
-var_dump($snaptrac->$_GET['tipo']);
+//echo '<pre>';
+//var_dump($snaptrac->$_GET['tipo']);
 
 /* 
 $pt1['latitude'] = floatval('-27.1');
