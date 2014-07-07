@@ -4,7 +4,7 @@ require_once 'functions.php';
 require_once 'lib/PHPExcel/Classes/PHPExcel.php';
 
 class snaptrac{
-	
+		
 	/**
 	 * Velocidade máxima
 	 * @var integer
@@ -54,7 +54,7 @@ class snaptrac{
 	public $points;
 	
 	/**
-	 * Relatório do GPS
+	 * Matriz com todos os pontos do competidor
 	 * @var array
 	 */
 	public $trac;
@@ -65,12 +65,28 @@ class snaptrac{
 	 */
 	public $functions;
 	
+	/**
+	 * Distância entre referências a cada segmento
+	 * @var integer
+	 */
 	public $steps_length;
 	
+	/**
+	 * Matriz com referências a cada segmento
+	 * @var unknown
+	 */
 	public $steps;
 	
+	/**
+	 * Matriz com pontos que ultrapassaram velocidade máxima dentro dos trechos delimitados pelos pontos
+	 * @var unknown
+	 */
 	public $radar;
 	
+	/**
+	 * Trechos delimitados pelos pontos
+	 * @var unknown
+	 */
 	public $trechos;
 	
 	/**
@@ -93,17 +109,6 @@ class snaptrac{
 		$this->functions = new functions();
 	}
 	
-	public function getFiles(){
-		if ($handle = opendir($this->import_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file != "." && $file != "..") {
-					$this->arq_trac[] = $file;
-				}
-			}
-			closedir($handle);
-		}
-	}
-
 	/**
 	 * 
 	 * Converte as coordenadas da planinha em uma matriz de pontos
@@ -138,12 +143,23 @@ class snaptrac{
 					$exp = explode(' ',$coords);
 					$array_data[$pointer]['latitude'] = $exp[0]*1;
 					$array_data[$pointer]['longitude'] = $exp[1]*1;
-					$array_data[$pointer]['id'] = $pointer;
+					$array_data[$pointer]['snap'] = array();
 				}
 			}
 		}
 		
-		$this->points = $array_data;
+		$this->points = array();
+		
+		foreach($array_data AS $key => $val){
+			$key1 = strtoupper(substr($key,0,1));
+			$key2 = intval(substr($key,1));
+			if ($key1 == 'I'){				
+				$this->points['entradas'][$key2] = $val;
+			}
+			if ($key1 == 'F'){				
+				$this->points['saidas'][$key2] = $val;
+			}
+		}
 	}
 	
 	/**
@@ -158,7 +174,7 @@ class snaptrac{
 		try{
 		
 			$this->getPoints();
-			$this->getFiles();
+			$this->arq_trac = $this->functions->getFiles($this->import_path);
 			
 			foreach ($this->arq_trac AS $file){
 				$folder = str_replace(".", "_", $file);
@@ -231,16 +247,15 @@ class snaptrac{
 					}
 					
 					$this->pointProcess();
-					$this->trechoProcess();
 					$this->radarProcess();
-					$this->reportFile($file);
+					//$this->reportFile($file);
 				}
 			}
 		} catch (Exception $e){
 			
 		}
 	}
-	
+		
 	/**
 	 * 
 	 * Processa os pontos da planilha para achar a tangente na trilha
@@ -250,20 +265,30 @@ class snaptrac{
 	 */
 	public function pointProcess(){
 		
-		$temp_arr = array();
+		$arr_tipos = array('entradas','saidas');
 		
-		foreach ($this->points AS $key => $point){			
-			if (isset($point['snap'])){
-				$group = $this->group($point['snap'],300);
-				$this->points[$key]['snap'] = array();
-				
-				foreach($group AS $lap){
-					$this->points[$key]['snap'][] = $this->nearest($point, $lap);
+		foreach($arr_tipos AS $tipo){
+		
+			$temp_arr = array();	
+			
+			foreach ($this->points[$tipo] AS $key => $point){	
+				if (isset($point['snap'])){
+					
+					$group = $this->group($point['snap'],300);
+							
+					$this->points[$tipo][$key]['snap'] = array();
+									
+					foreach($group AS $lap){
+						$this->points[$tipo][$key]['snap'][] = $this->nearest($point, $lap);
+					}
 				}
 			}
+		
 		}
+		
 	}
 	
+	/* 
 	public function trechoProcess(){
 	
 		$this->trechos = array();
@@ -274,21 +299,21 @@ class snaptrac{
 				$key2 = "F".substr($key,1);
 				foreach($this->trac AS $hora_trac => $trac){
 					if(isset($this->points[$key]['snap'])){
-					if(is_array($this->points[$key]['snap'])){
-						foreach($this->points[$key]['snap'] AS $snap){
-							if(isset($snap['indice']) && isset($this->points[$key2]['snap']['indice'])){
-							if($hora_trac >= $snap['indice'] && $hora_trac <= $this->points[$key2]['snap']['indice']){
-								$this->trechos[] = $hora_trac;
-							}
+						if(is_array($this->points[$key]['snap'])){
+							foreach($this->points[$key]['snap'] AS $snap){
+								if(isset($snap['indice']) && isset($this->points[$key2]['snap']['indice'])){
+									if($hora_trac >= $snap['indice'] && $hora_trac <= $this->points[$key2]['snap']['indice']){
+										$this->trechos[] = $hora_trac;
+									}
+								}
 							}
 						}
-					}
 					}
 				}
 			}
 		}
 	}
-	
+	*/
 	
 	public function radarProcess(){
 		foreach($this->trac AS $trac){
@@ -299,8 +324,7 @@ class snaptrac{
 			}
 		}
 	}
-	
-	
+		
 	/**
 	 * 
 	 * Retorna ponto mais próximo de uma lista para uma referência
@@ -356,7 +380,12 @@ class snaptrac{
 		return $group;
 	}
 	
-	
+	/**
+	 * Gera relatórios de um arquivo
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 03/07/2014
+	 * @param unknown $file
+	 */
 	public function reportFile($file){
 		
 		$folder = str_replace(".", "_", $file);
@@ -384,4 +413,18 @@ USER GRID,0,0,0,0,0
 		fclose($handle);
 		
 	}
+
+
+	/*
+	public function partProcess(){
+		$cord = NULL;
+		foreach($this->trac AS $keyTrac => $valTrac){
+			foreach($this->points AS $keyPoint => $valPoint){
+				if (){
+					
+				}
+			}
+		}
+	}
+	*/
 }
