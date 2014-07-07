@@ -272,6 +272,7 @@ class snaptrac{
 			$this->radarProcess();
 			$this->reportFile($file,'radar');
 			$this->reportFile($file,'points');
+			$this->reportFile($file,'relatorio_pontos');
 			$this->radar = array();
 		}
 	}
@@ -458,6 +459,20 @@ USER GRID,0,0,0,0,0
 						,'F'.$key
 						,$point['latitude']
 						,$point['longitude']
+					);
+				}
+			} elseif($tipo=='relatorio_pontos'){
+				$string = "";
+				foreach ($this->points['entradas'] AS $key => $point){
+					$string .= sprintf("Ponto: %s\r\nHorário:%s\r\n\r\n"
+						,'I'.$key
+						,$point['snap']['hora']
+					);
+				}
+				foreach ($this->points['saidas'] AS $key => $point){
+					$string .= sprintf("Ponto: %s\r\nHorário:%s\r\n\r\n"
+						,'I'.$key
+						,$point['snap']['hora']
 					);
 				}
 			} else {
