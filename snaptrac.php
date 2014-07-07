@@ -1,11 +1,12 @@
 <?php
-
+ini_set('memory_limit', '1024M');
+set_time_limit (0);
 include_once 'php/snaptrac.php';
 include_once 'php/functions.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
-$snaptrac->tracProcess();
+$snaptrac->process();
 
 //echo '<pre>';
 //var_dump($snaptrac->$_GET['tipo']);
