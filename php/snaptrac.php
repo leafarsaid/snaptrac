@@ -264,7 +264,6 @@ class snaptrac{
 						}
 					}
 					fclose($handle);					
-					
 				}
 			}
 			$this->pointProcess();						
@@ -463,17 +462,24 @@ USER GRID,0,0,0,0,0
 				}
 			} elseif($tipo=='relatorio_pontos'){
 				$string = "";
-				foreach ($this->points['entradas'] AS $key => $point){
-					$string .= sprintf("Ponto: %s\r\nHorário:%s\r\n\r\n"
-						,'I'.$key
-						,$point['snap']['hora']
-					);
-				}
-				foreach ($this->points['saidas'] AS $key => $point){
-					$string .= sprintf("Ponto: %s\r\nHorário:%s\r\n\r\n"
-						,'I'.$key
-						,$point['snap']['hora']
-					);
+				$arr_tipo = array('entradas','saidas');
+				foreach ($arr_tipo AS $tipo){
+					if ($tipo=='entradas') $letra = 'I';
+					if ($tipo=='saidas') $letra = 'F';
+					foreach ($this->points[$tipo] AS $key => $point){
+						$string .= sprintf("Ponto %s\r\n"
+							,$letra.$key
+						);
+						$volta = 1;
+						foreach($point['snap'] AS $snap){
+							$string .= sprintf("Horário passagem %s-> %s\r\n"
+								,$volta
+								,$snap['hora']
+							);
+							$volta++;
+						}
+						$string .= sprintf("\r\n");
+					}
 				}
 			} else {
 				foreach ($this->$tipo AS $point){
