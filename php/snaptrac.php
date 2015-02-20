@@ -272,6 +272,7 @@ class snaptrac{
 			$this->reportFile($file,'radar');
 			$this->reportFile($file,'points');
 			$this->reportFile($file,'relatorio_pontos');
+			$this->reportFile($file,'relatorio_radar');
 			$this->radar = array();
 		}
 	}
@@ -481,6 +482,20 @@ USER GRID,0,0,0,0,0
 						$string .= sprintf("\r\n");
 					}
 				}
+			} elseif($tipo=='relatorio_radar') {
+				
+				$maiorVelocidade = 0;
+				foreach($this->radar AS $trac){	
+					if ($maiorVelocidade < $trac['velocidade']){
+						$maiorVelocidade = floatval($trac['velocidade']);
+					}
+				}
+				
+				$string = "Quantidade de pontos acima da velocidade máxima dentro das zonas de radar: ".count($this->radar);
+				$string .= sprintf("\r\n");
+				$string .= "Maior velocidade encontrada (km/h): ".$maiorVelocidade;
+				$string .= sprintf("\r\n");
+				
 			} else {
 				foreach ($this->$tipo AS $point){
 					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,48,0,13\r\n"
