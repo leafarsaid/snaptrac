@@ -1,0 +1,2 @@
+Quantidade de pontos acima da velocidade máxima dentro das zonas de radar: 7
+Maior velocidade encontrada (km/h): 72.89

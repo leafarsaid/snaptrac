@@ -1,0 +1,28 @@
+Ponto I1
+Horário passagem 1-> 12:04:34
+Horário passagem 2-> 12:04:34
+Horário passagem 3-> 17:52:36
+
+Ponto I2
+Horário passagem 1-> 12:32:36
+Horário passagem 2-> 12:32:36
+Horário passagem 3-> 18:09:00
+
+Ponto I3
+
+Ponto I4
+
+Ponto F1
+Horário passagem 1-> 12:28:21
+Horário passagem 2-> 12:28:21
+Horário passagem 3-> 18:03:48
+
+Ponto F2
+Horário passagem 1-> 13:11:37
+Horário passagem 2-> 13:11:37
+Horário passagem 3-> 18:33:41
+
+Ponto F3
+
+Ponto F4
+
