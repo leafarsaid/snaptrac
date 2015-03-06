@@ -67,6 +67,12 @@ class snaptrac{
 	public $points_ini;
 	
 	/**
+	 * Matriz de coordenadas da planinha de pontos - guarda todos
+	 * @var array
+	 */
+	public $points_geral;
+	
+	/**
 	 * Matriz com todos os pontos
 	 * @var array
 	 */
@@ -84,11 +90,23 @@ class snaptrac{
 	 */
 	public $radar;
 	
+		/**
+	 * Matriz com os pontos onde houveram avanços na velocidade acima da máxima - para todos os arquivos
+	 * @var array
+	 */
+	public $radar_geral;
+	
 	/**
 	 * Array com os pontos dentro dos pontos de entrada e saída
 	 * @var array
 	 */
 	public $trechos;
+	
+	/**
+	 * String com relátório de todos os carros
+	 * @var string
+	 */
+	public $relatorio_geral_pontos;
 			
 
 #endregion
@@ -125,6 +143,8 @@ class snaptrac{
 		$this->import_path = $st['Parametros']['import_path'];
 		$this->report_path = $st['Parametros']['report_path'];
 		$this->functions = new functions();
+		
+		$this->relatorio_geral_pontos = '';
 	}
 
 #endregion	
@@ -280,6 +300,7 @@ class snaptrac{
 			$this->radar = array();
 			$this->points = $this->points_ini;
 		}
+		$this->reportFile('','relatorio_geral_pontos');
 	}
 	#endregion
 	
@@ -441,7 +462,13 @@ class snaptrac{
 		if (!is_dir($path)){
 			mkdir($path, 0777);
 		}
-		$path = $this->report_path."/".$folder."/$tipo.txt";
+		
+		$ext = "txt";
+		if ($tipo=='relatorio_pontos' || $tipo=='relatorio_geral_pontos'){
+			$ext = "csv";
+		}
+		
+		$path = $this->report_path."/".$folder."/$tipo.$ext";
 		touch($path);			
 		$handle = fopen($path, "w");
 		if ($handle){
@@ -467,26 +494,27 @@ USER GRID,0,0,0,0,0
 					);
 				}
 			} elseif($tipo=='relatorio_pontos'){
-				$string = "";
+				$string = sprintf("Ponto;Veículo;Passagem;Hora\r\n");
+				$string_aux = '';
 				$arr_tipo = array('entradas','saidas');
 				foreach ($arr_tipo AS $tipo){
 					if ($tipo=='entradas') $letra = 'I';
 					if ($tipo=='saidas') $letra = 'F';
-					foreach ($this->points[$tipo] AS $key => $point){
-						$string .= sprintf("Ponto %s\r\n"
-							,$letra.$key
-						);
+					foreach ($this->points[$tipo] AS $key => $point){						
 						$volta = 1;
 						foreach($point['snap'] AS $snap){
-							$string .= sprintf("Horário passagem %s-> %s\r\n"
+							$string_aux .= sprintf("%s;%s;%s;%s\r\n"
+								,$letra.$key
+								,intval($folder)
 								,$volta
 								,$snap['hora']
 							);
 							$volta++;
 						}
-						$string .= sprintf("\r\n");
 					}
 				}
+				$string .= $string_aux;
+				$this->relatorio_geral_pontos .= $string_aux;
 			} elseif($tipo=='relatorio_radar') {
 				
 				$maiorVelocidade = 0;
@@ -501,6 +529,10 @@ USER GRID,0,0,0,0,0
 				$string .= "Maior velocidade encontrada (km/h): ".$maiorVelocidade;
 				$string .= sprintf("\r\n");
 				
+			} elseif ($tipo=='relatorio_geral_pontos'){	
+				$string = sprintf("Ponto;Veículo;Passagem;Hora\r\n");			
+				$string .= $this->relatorio_geral_pontos;
+			
 			} else {
 				foreach ($this->$tipo AS $point){
 					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,48,0,13\r\n"
