@@ -61,6 +61,12 @@ class snaptrac{
 	public $points;
 	
 	/**
+	 * Matriz de coordenadas da planinha de pontos - guarda estado inicial
+	 * @var array
+	 */
+	public $points_ini;
+	
+	/**
 	 * Matriz com todos os pontos
 	 * @var array
 	 */
@@ -103,9 +109,7 @@ class snaptrac{
 
 #region Construtor
 	
-	/**
-	 * 
-	 * Método construtor
+	/** Método construtor
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
@@ -127,9 +131,7 @@ class snaptrac{
 	
 #region getPoints
 	
-	/**
-	 * 
-	 * Converte as coordenadas da planinha em uma matriz de pontos
+	/** Converte as coordenadas da planinha em uma matriz de pontos
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
@@ -175,6 +177,8 @@ class snaptrac{
 				$this->points['saidas'][$key2] = $val;
 			}
 		}
+		
+		$this->points_ini = $this->points;
 	}
 
 #endregion
@@ -274,6 +278,7 @@ class snaptrac{
 			$this->reportFile($file,'relatorio_pontos');
 			$this->reportFile($file,'relatorio_radar');
 			$this->radar = array();
+			$this->points = $this->points_ini;
 		}
 	}
 	#endregion
