@@ -524,6 +524,8 @@ USER GRID,0,0,0,0,0
 				
 				$string .= $string_aux;
 				$this->relatorio_geral_pontos .= $string_aux;
+				
+				
 			} elseif($tipo=='relatorio_radar') {
 				
 				$maiorVelocidade = 0;
@@ -537,6 +539,8 @@ USER GRID,0,0,0,0,0
 				$string .= sprintf("\r\n");
 				$string .= "Maior velocidade encontrada (km/h): ".$maiorVelocidade;
 				$string .= sprintf("\r\n");
+				
+				
 				
 			} elseif ($tipo=='relatorio_geral_pontos'){	
 				$string = sprintf("Veículo;Passagem;Largada;Chegada;Tempo\r\n");			
