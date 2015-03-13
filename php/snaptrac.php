@@ -494,22 +494,32 @@ USER GRID,0,0,0,0,0
 					);
 				}
 			} elseif($tipo=='relatorio_pontos'){
-				$string = sprintf("Ponto;Veículo;Passagem;Hora\r\n");
+				$string = sprintf("Ponto;Veículo;Largada;Chegada;Tempo\r\n");
 				$string_aux = '';
 				$arr_tipo = array('entradas','saidas');
+				setlocale(LC_TIME, "pt_BR");
 				foreach ($arr_tipo AS $tipo){
 					if ($tipo=='entradas') $letra = 'I';
 					if ($tipo=='saidas') $letra = 'F';
 					foreach ($this->points[$tipo] AS $key => $point){						
-						$volta = 1;
+						//$volta = 1;
+						$string_aux2 = sprintf("%s;%s",$letra.$key,intval($folder));
+						$largada = "";
+						$chegada = "";
 						foreach($point['snap'] AS $snap){
-							$string_aux .= sprintf("%s;%s;%s;%s\r\n"
-								,$letra.$key
-								,intval($folder)
-								,$volta
-								,$snap['hora']
-							);
-							$volta++;
+							$string_aux2 .= sprintf(";%s",$snap['hora']);
+							if (!strlen($largada)){
+								$largada = strtotime($snap['hora']);
+							} else{
+								$chegada = strtotime($snap['hora'] . " + 3 hours");
+							}
+							//$volta++;
+						}
+						$tempo = $chegada - $largada;
+						if($tempo){
+							$tempo = strftime('%H:%M:%S',$tempo);
+							$string_aux2 .= sprintf(";%s\r\n",$tempo );
+							$string_aux .= $string_aux2;
 						}
 					}
 				}
@@ -530,7 +540,7 @@ USER GRID,0,0,0,0,0
 				$string .= sprintf("\r\n");
 				
 			} elseif ($tipo=='relatorio_geral_pontos'){	
-				$string = sprintf("Ponto;Veículo;Passagem;Hora\r\n");			
+				$string = sprintf("Ponto;Veículo;Largada;Chegada;Tempo\r\n");			
 				$string .= $this->relatorio_geral_pontos;
 			
 			} else {
