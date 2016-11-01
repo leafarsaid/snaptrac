@@ -6,9 +6,14 @@ include_once 'php/functions.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
-$snaptrac->process();
+//$snaptrac->process();
 
-//echo '<pre>';
+
+echo '<pre>';
+
+//var_dump($snaptrac);
+var_dump($snaptrac->getPoints());
+
 //var_dump($snaptrac->$_GET['tipo']);
 
 /* 

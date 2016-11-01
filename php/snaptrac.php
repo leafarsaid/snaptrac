@@ -39,6 +39,12 @@ class snaptrac{
 	public $import_path;
 	
 	/**
+	 * Caminho para arquivos processados dos competidores
+	 * @var string
+	 */
+	public $processed_path;
+	
+	/**
 	 * Caminho para relatórios
 	 * @var string
 	 */
@@ -141,6 +147,7 @@ class snaptrac{
 		$this->steps_length = floatval($st['Parametros']['steps_length']);
 		$this->arq_pontos = $st['Parametros']['pontos'];
 		$this->import_path = $st['Parametros']['import_path'];
+		$this->processed_path = $st['Parametros']['processed_path'];
 		$this->report_path = $st['Parametros']['report_path'];
 		$this->functions = new functions();
 		
@@ -155,13 +162,15 @@ class snaptrac{
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
+	 * @version 01/11/2016 novos tipos de pontos
 	 */
 	public function getPoints(){
-				
+					
 		$objReader = new PHPExcel_Reader_Excel5();
-		$objReader->setReadDataOnly(true);
+		$objReader->setReadDataOnly(true);	
+		
 		$objPHPExcel = $objReader->load($this->arq_pontos);
-
+		
 		$rowIterator = $objPHPExcel->getActiveSheet()->getRowIterator();
 		
 		$array_data = array();
@@ -181,24 +190,61 @@ class snaptrac{
 					$coords = str_replace('W', '-', $coords);
 					$coords = str_replace('E', '+', $coords);
 					$exp = explode(' ',$coords);
-					$array_data[$pointer]['latitude'] = $exp[0]*1;
-					$array_data[$pointer]['longitude'] = $exp[1]*1;
-					$array_data[$pointer]['snap'] = array();
+					
+					$pto = array();
+					
+					$pto['latitude'] = $exp[0]*1;
+					$pto['longitude'] = $exp[1]*1;
+					$pto['snap'] = array();
+					
+					$array_data[$pointer][] = $pto;
 				}
 			}
 		}
 		
+		$key_la = $key_che = $key_wa = $key_ca = $key_i1 = $key_i2 = $key_i3 = $key_i4 = $key_ir = $key_fr = 0;
+		
 		foreach($array_data AS $key => $val){
-			$key1 = strtoupper(substr($key,0,1));
-			$key2 = intval(substr($key,1));
-			if($key1 == "I"){
-				$this->points['entradas'][$key2] = $val;
-			} else{
-				$this->points['saidas'][$key2] = $val;
+			
+			switch ($key) {
+				case "L":
+					$this->points['largada'][$key_la++] = $val;
+					break;
+				case "F":
+					$this->points['chegada'][$key_che++] = $val;
+					break;
+				case "W":
+					$this->points['waypoint'][$key_wa++] = $val;
+					break;
+				case "C":
+					$this->points['carimbo'][$key_ca++] = $val;
+					break;
+				case "I1":
+					$this->points['inter1'][$key_i1++] = $val;
+					break;
+				case "I2":
+					$this->points['inter2'][$key_i2++] = $val;
+					break;
+				case "I3":
+					$this->points['inter3'][$key_i3++] = $val;
+					break;
+				case "I4":
+					$this->points['inter4'][$key_i4++] = $val;
+					break;
+				case "IR":
+					$this->points['entradas'][$key_ir++] = $val;
+					break;
+				case "FR":
+					$this->points['saidas'][$key_fr++] = $val;
+					break;
 			}
+			
 		}
 		
 		$this->points_ini = $this->points;
+		
+		//return $this->points;
+		return $array_data;
 	}
 
 #endregion
@@ -208,7 +254,7 @@ class snaptrac{
 	public function process(){
 		try{
 			$this->getPoints();
-			$this->tracProcess();			
+			//$this->tracProcess();			
 		} catch(Exception $e){
 			echo $e->getMessage();
 		}
@@ -219,9 +265,7 @@ class snaptrac{
 #region Processos Auxiliares
 
 	#region tracProcess
-	/**
-	 * 
-	 * Processa a trilha
+	/** Processa a trilha
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 25/06/2014
@@ -237,7 +281,7 @@ class snaptrac{
 			
 			$folder = str_replace(".", "_", $file);
 			
-			//se já não existir
+			//só processa não existir
 			if (!is_dir($this->report_path."/".$folder)){
 			
 				$handle = fopen($this->import_path."/".$file, "r");
@@ -289,8 +333,9 @@ class snaptrac{
 					}
 					fclose($handle);					
 				}
+				rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
-			$this->pointProcess();						
+			$this->pointProcess();		
 			$this->zoneProcess();
 			$this->radarProcess();
 			$this->reportFile($file,'radar');
@@ -298,13 +343,13 @@ class snaptrac{
 			$this->reportFile($file,'relatorio_pontos');
 			$this->reportFile($file,'relatorio_radar');
 			$this->radar = array();
-			$this->points = $this->points_ini;
+			$this->points = $this->points_ini;	
+			
 		}
 		$this->reportFile('','relatorio_geral_pontos');
 	}
 	#endregion
-	
-	#region pointProcess
+		
 	/** Processa os pontos da planilha para achar a tangente na trilha
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -340,9 +385,8 @@ class snaptrac{
 			}
 		}
 	}
-	#endregion
 
-	#region zoneProcess
+
 	public function zoneProcess(){
 		//somente entradas possuem zones
 		foreach ($this->points['entradas'] AS $key => $point){
@@ -356,9 +400,7 @@ class snaptrac{
 		}
 		
 	}
-	#endregion
 	
-	#region radarProcess
 	public function radarProcess(){
 		$zones = array();
 		
@@ -377,7 +419,6 @@ class snaptrac{
 			}
 		}
 	}
-	#endregion
 
 #endregion
 	
