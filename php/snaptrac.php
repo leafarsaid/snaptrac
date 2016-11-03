@@ -1,7 +1,6 @@
 <?php
 
 require_once 'functions.php';
-require_once 'lib/PHPExcel/Classes/PHPExcel.php';
 
 class snaptrac{
 	
@@ -211,7 +210,7 @@ class snaptrac{
 	public function process(){
 		try{
 			$this->getPoints();
-			//$this->tracProcess();			
+			$this->tracProcess();			
 		} catch(Exception $e){
 			echo $e->getMessage();
 		}
@@ -226,6 +225,7 @@ class snaptrac{
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 25/06/2014
+	 * @version 02/11/2014
 	 */
 	public function tracProcess(){
 	
@@ -240,70 +240,64 @@ class snaptrac{
 			
 			//só processa não existir
 			if (!is_dir($this->report_path."/".$folder)){
-			
-				$handle = fopen($this->import_path."/".$file, "r");
-				if ($handle){
-		
-					$previousKey = 0;
-					//acumulador de distância
-					$dist_acum = 0;
+				
+				$xml = simplexml_load_file($this->import_path."/".$file);
+				
+				$previousKey = 0;
+				//acumulador de distância
+				$dist_acum = 0;
+				
+				foreach($xml->trk->trkseg->trkpt AS $trkpt){
+					//Pega todas as informações de cada ponto da trilha
+					$hora = $this->functions->toSec(substr($trkpt->time,-9,8));
 					
-					while (!feof($handle)){
-						$buffer = fgets($handle, 4096);
-						$arr_buffer = explode(',',$buffer);
-						if ($buffer[0]=='t'){
-							//Pega todas as informações de cada ponto da trilha
-							$hora = $this->functions->toSec($arr_buffer[5]);
-							
-							$this->trac[$hora]['indice'] = $hora;
-							$this->trac[$hora]['latitude'] = $arr_buffer[2]*1;
-							$this->trac[$hora]['longitude'] = $arr_buffer[3]*1;
-							$this->trac[$hora]['data'] = $arr_buffer[4];
-							$this->trac[$hora]['hora'] = $arr_buffer[5];   	
-							$this->trac[$hora]['altitude'] = floatval($arr_buffer[6]);
-							if ($previousKey > 0){
-								$this->trac[$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$hora]);
-							} else{
-								$this->trac[$hora]['distancia'] = floatval(0);
-							}
-							$dist_acum += ($this->trac[$hora]['distancia']*1000);		
-							$this->trac[$hora]['distancia_acumulada'] = $dist_acum;
-							$vel = round(($this->trac[$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
-							$vel = ($vel > 0) ? $vel : 0;
-							$this->trac[$hora]['velocidade'] = $vel;
-							if ($vel > $this->velmax){									
-								$this->trac[$hora]['ultrapassou_velmax'] = 'SIM';
-							} else{
-								$this->trac[$hora]['ultrapassou_velmax'] = 'NAO';
-							}
-							
-							$arr_step = $this->trac[$hora];
-							
-							//steps
-							if ($dist_acum >= $this->steps_length){			
-								$this->steps[$hora] = $arr_step;
-								$dist_acum = 0;
-							}
-							
-							$previousKey = $hora;
-						}
+					$this->trac[$folder][$hora]['indice'] = $hora;
+					$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
+					$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
+					$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
+					$this->trac[$folder][$hora]['hora'] = substr($trkpt->time,-9,8);   	
+					$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
+					//distancia em km					
+					if ($previousKey > 0){
+						$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$folder][$hora]);
+					} else{
+						$this->trac[$folder][$hora]['distancia'] = floatval(0);
 					}
-					fclose($handle);					
-				}
-				rename($this->import_path."/".$file, $this->processed_path."/".$file);
+					$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
+					$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
+					$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+					$vel = ($vel > 0) ? $vel : 0;
+					$this->trac[$folder][$hora]['velocidade'] = $vel;
+					if ($vel > $this->velmax){	
+						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'SIM';
+					} else{
+						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'NAO';
+					}
+					
+					$arr_step = $this->trac[$folder][$hora];
+					
+					//steps
+					if ($dist_acum >= $this->steps_length){			
+						$this->steps[$hora] = $arr_step;
+						$dist_acum = 0;
+					}
+					
+					$previousKey = $hora;
+				}			
+				//rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
-			$this->pointProcess();		
-			$this->zoneProcess();
-			$this->radarProcess();
-			$this->reportFile($file,'radar');
-			$this->reportFile($file,'points');
-			$this->reportFile($file,'relatorio_pontos');
-			$this->reportFile($file,'relatorio_radar');
-			$this->radar = array();
-			$this->points = $this->points_ini;	
+			$this->pointProcess($folder);
+			//$this->zoneProcess();
+			//$this->radarProcess();
+			//$this->reportFile($file,'radar');
+			//$this->reportFile($file,'points');
+			//$this->reportFile($file,'relatorio_pontos');
+			//$this->reportFile($file,'relatorio_radar');
+			//$this->radar = array();
+			//$this->points = $this->points_ini;
 			
 		}
-		$this->reportFile('','relatorio_geral_pontos');
+		//$this->reportFile('','relatorio_geral_pontos');
 	}
 	#endregion
 		
@@ -312,7 +306,43 @@ class snaptrac{
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 26/06/2014
 	 */
-	public function pointProcess(){
+	private function pointProcess($folder){
+
+		$arr_tipo = array('largada','chegada','waypoints','carimbo','inter1','inter2','inter3','inter4','entradas','saidas');
+		
+		foreach($arr_tipo AS $tipo){
+			
+			foreach ($this->points[$tipo] AS $key => $point){
+				
+				//pegando todos os pontos que passam perto
+				foreach ($this->trac[$folder] AS $ptTrac){
+					$distancia = $this->functions->distancia($ptTrac,$point);
+					if ($distancia <= ($this->gate/1000)){
+						$this->points[$tipo][$key]['snap'][$folder][] = $ptTrac;						
+					}					
+				}
+				
+				//filtrando pontos
+				if (isset($this->points[$tipo][$key]['snap'][$folder])){
+					$laps = $this->group($this->points[$tipo][$key]['snap'][$folder],300);
+					//limpando array
+					$this->points[$tipo][$key]['snap'][$folder] = array();
+					
+					foreach($laps AS $lap){
+						$ponto_mais_proximo = $this->nearest($point, $lap);	
+						
+						//se for waypoint, retira se for passagem por outro waypoint
+						//$outro_waypoint = false;
+						
+						//if(!($tipo == 'waypoints' && $outro_waypoint)){
+							$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
+						//}
+					}
+				}
+			}
+		}
+	}
+	/*public function pointProcess(){
 	
 		$arr_tipo = array('entradas','saidas');
 		
@@ -341,7 +371,7 @@ class snaptrac{
 				}
 			}
 		}
-	}
+	}*/
 
 
 	public function zoneProcess(){

@@ -8,11 +8,23 @@ $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
 //$snaptrac->process();
 
+/*
+$pto1['latitude'] = floatval('-22.715141969869308'); 
+$pto1['longitude'] = floatval('-48.570636010808904');
+$pto2['latitude'] = floatval('-22.713122952565595');
+$pto2['longitude'] = floatval('-48.57213796451693');
+
+echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
+*/
 
 echo '<pre>';
 
-//var_dump($snaptrac);
-var_dump($snaptrac->getPoints());
+$snaptrac->getPoints();
+$snaptrac->tracProcess();
+var_dump($snaptrac->points);
+
+//$snaptrac->tracProcess();
+//var_dump($snaptrac->trac);
 
 //var_dump($snaptrac->$_GET['tipo']);
 
