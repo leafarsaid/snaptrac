@@ -108,10 +108,22 @@ class snaptrac{
 	public $trechos;
 	
 	/**
+	 * Array com tipos de pontos
+	 * @var array
+	 */
+	public $arr_tipo;
+	
+	/**
 	 * String com relátório de todos os carros
 	 * @var string
 	 */
 	public $relatorio_geral_pontos;
+	
+	/**
+	 * String com relátório de todos os carros para exportar para Chronosat
+	 * @var string
+	 */
+	public $relatorio_exportar_chronosat;
 			
 
 #endregion
@@ -149,8 +161,21 @@ class snaptrac{
 		$this->processed_path = $st['Parametros']['processed_path'];
 		$this->report_path = $st['Parametros']['report_path'];
 		$this->functions = new functions();
+		$this->arr_tipo = array(
+			'L' => 'largada',
+			'F' => 'chegada',
+			'W' => 'waypoints',
+			'C' => 'carimbo',
+			'I1' => 'inter1',
+			'I2' => 'inter2',
+			'I3' => 'inter3',
+			'I4' => 'inter4',
+			'IR' => 'entradas',
+			'FR' => 'saidas'
+		);		
 		
 		$this->relatorio_geral_pontos = '';
+		$this->relatorio_exportar_chronosat = '';		
 	}
 
 #endregion	
@@ -183,17 +208,12 @@ class snaptrac{
 				$pto['longitude'] = $exp[1]*1;
 				$pto['snap'] = array();
 				
-				$tipo_pto = 'nada';
-				if ($pointer === 'L') $tipo_pto = 'largada';
-				if ($pointer === 'F') $tipo_pto = 'chegada';
-				if ($pointer === 'W') $tipo_pto = 'waypoints';
-				if ($pointer === 'C') $tipo_pto = 'carimbo';
-				if ($pointer === 'I1') $tipo_pto = 'inter1';
-				if ($pointer === 'I2') $tipo_pto = 'inter2';
-				if ($pointer === 'I3') $tipo_pto = 'inter3';
-				if ($pointer === 'I4') $tipo_pto = 'inter4';
-				if ($pointer === 'IR') $tipo_pto = 'entradas';
-				if ($pointer === 'FR') $tipo_pto = 'saidas';
+				$tipo_pto = 'nada';				
+				foreach ($this->arr_tipo AS $tipo_pto_key => $tipo_pto_val){
+					if ($pointer === $tipo_pto_key){
+						$tipo_pto = $tipo_pto_val;
+					}
+				}
 				
 				$array_data[$tipo_pto][] = $pto;
 			}
@@ -257,9 +277,9 @@ class snaptrac{
 					$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
 					$this->trac[$folder][$hora]['hora'] = substr($trkpt->time,-9,8);   	
 					$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
-					//distancia em km					
+					//distancia em km
 					if ($previousKey > 0){
-						$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$previousKey],$this->trac[$folder][$hora]);
+						$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$folder][$previousKey],$this->trac[$folder][$hora]);
 					} else{
 						$this->trac[$folder][$hora]['distancia'] = floatval(0);
 					}
@@ -287,6 +307,7 @@ class snaptrac{
 				//rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
 			$this->pointProcess($folder);
+			$this->reportFile($file,'exportar_chronosat_unitario');
 			//$this->zoneProcess();
 			//$this->radarProcess();
 			//$this->reportFile($file,'radar');
@@ -298,6 +319,7 @@ class snaptrac{
 			
 		}
 		//$this->reportFile('','relatorio_geral_pontos');
+		$this->reportFile('','exportar_chronosat');
 	}
 	#endregion
 		
@@ -307,10 +329,8 @@ class snaptrac{
 	 * @version 26/06/2014
 	 */
 	private function pointProcess($folder){
-
-		$arr_tipo = array('largada','chegada','waypoints','carimbo','inter1','inter2','inter3','inter4','entradas','saidas');
 		
-		foreach($arr_tipo AS $tipo){
+		foreach($this->arr_tipo AS $tipo){
 			
 			foreach ($this->points[$tipo] AS $key => $point){
 				
@@ -492,7 +512,7 @@ class snaptrac{
 		}
 		
 		$ext = "txt";
-		if ($tipo=='relatorio_pontos' || $tipo=='relatorio_geral_pontos'){
+		if ($tipo=='relatorio_pontos' || $tipo=='relatorio_geral_pontos' || $tipo=='exportar_chronosat_unitario' || $tipo=='exportar_chronosat'){
 			$ext = "csv";
 		}
 		
@@ -574,7 +594,43 @@ USER GRID,0,0,0,0,0
 				$string = sprintf("Veículo;Passagem;Largada;Chegada;Tempo\r\n");			
 				$string .= $this->relatorio_geral_pontos;
 			
-			} else {
+			} elseif ($tipo=='exportar_chronosat_unitario'){
+				$string = sprintf("Veículo;Tipo de tempo;Tempo;Obs\r\n");
+				$string_aux = "";
+				$arr_linha = array();
+				foreach ($this->arr_tipo AS $tipo_key => $tipo){
+					foreach ($this->points[$tipo] AS $key => $point){						
+						$volta = 1;
+						foreach($point['snap'] AS $key_snap => $snap){
+							if ($folder == $key_snap){
+								$arr_linha[intval($folder)][$volta][$tipo_key][$key] = $snap[$volta-1];
+								$volta++;
+							}
+						}
+					}
+				}
+				foreach($arr_linha AS $veiculo => $voltas){
+					foreach($voltas AS $num_volta => $volta){
+						foreach($volta AS $tipo_key => $ocorrencia){
+							foreach($ocorrencia AS $oco_key => $oco_val){
+								$string_aux .= sprintf("%s;%s;%s;%s\r\n"
+									,$veiculo
+									,$tipo_key
+									,$oco_val['hora']
+									,"Passagem ".$num_volta." em ".$this->arr_tipo[$tipo_key]." (".($oco_key+1).") a ".$oco_val['velocidade']."km/h"
+								);
+							}
+						}
+					}
+				}
+				$string .= $string_aux;
+				$this->relatorio_exportar_chronosat .= $string_aux;
+						
+			} elseif ($tipo=='exportar_chronosat'){
+				$string = sprintf("Veículo;Tipo de tempo;Tempo;Obs\r\n");
+				$string .= $this->relatorio_exportar_chronosat;
+				
+			}else {
 				foreach ($this->$tipo AS $point){
 					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,48,0,13\r\n"
 						,$point['velocidade']
