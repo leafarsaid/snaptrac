@@ -162,89 +162,46 @@ class snaptrac{
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
-	 * @version 01/11/2016 novos tipos de pontos
+	 * @version 01/11/2016 novos tipos de pontos (em csv)
 	 */
 	public function getPoints(){
-					
-		$objReader = new PHPExcel_Reader_Excel5();
-		$objReader->setReadDataOnly(true);	
-		
-		$objPHPExcel = $objReader->load($this->arq_pontos);
-		
-		$rowIterator = $objPHPExcel->getActiveSheet()->getRowIterator();
-		
+			
 		$array_data = array();
-		foreach($rowIterator as $row){
-			$cellIterator = $row->getCellIterator();
-			$cellIterator->setIterateOnlyExistingCells(false);
-			
-			$pointer = '';	
-			foreach ($cellIterator as $cell){
-				if('A' == $cell->getColumn()){
-					$pointer = $cell->getCalculatedValue();
-					$array_data[$pointer] = '';
-				} else if('B' == $cell->getColumn()){
-					$coords = $cell->getCalculatedValue();
-					$coords = str_replace('S', '-', $coords);
-					$coords = str_replace('N', '+', $coords);
-					$coords = str_replace('W', '-', $coords);
-					$coords = str_replace('E', '+', $coords);
-					$exp = explode(' ',$coords);
-					
-					$pto = array();
-					
-					$pto['latitude'] = $exp[0]*1;
-					$pto['longitude'] = $exp[1]*1;
-					$pto['snap'] = array();
-					
-					$array_data[$pointer][] = $pto;
-				}
+		
+		if (($handle = fopen($this->arq_pontos, "r")) !== FALSE) {
+			while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+				$pointer = trim($data[0]);
+				$coords = $data[1];
+				$coords = str_replace('S', '-', $coords);
+				$coords = str_replace('N', '+', $coords);
+				$coords = str_replace('W', '-', $coords);
+				$coords = str_replace('E', '+', $coords);
+				$exp = explode(' ',$coords);
+				
+				$pto = array();
+				
+				$pto['latitude'] = $exp[0]*1;
+				$pto['longitude'] = $exp[1]*1;
+				$pto['snap'] = array();
+				
+				$tipo_pto = 'nada';
+				if ($pointer === 'L') $tipo_pto = 'largada';
+				if ($pointer === 'F') $tipo_pto = 'chegada';
+				if ($pointer === 'W') $tipo_pto = 'waypoints';
+				if ($pointer === 'C') $tipo_pto = 'carimbo';
+				if ($pointer === 'I1') $tipo_pto = 'inter1';
+				if ($pointer === 'I2') $tipo_pto = 'inter2';
+				if ($pointer === 'I3') $tipo_pto = 'inter3';
+				if ($pointer === 'I4') $tipo_pto = 'inter4';
+				if ($pointer === 'IR') $tipo_pto = 'entradas';
+				if ($pointer === 'FR') $tipo_pto = 'saidas';
+				
+				$array_data[$tipo_pto][] = $pto;
 			}
+			fclose($handle);
 		}
 		
-		$key_la = $key_che = $key_wa = $key_ca = $key_i1 = $key_i2 = $key_i3 = $key_i4 = $key_ir = $key_fr = 0;
-		
-		foreach($array_data AS $key => $val){
-			
-			switch ($key) {
-				case "L":
-					$this->points['largada'][$key_la++] = $val;
-					break;
-				case "F":
-					$this->points['chegada'][$key_che++] = $val;
-					break;
-				case "W":
-					$this->points['waypoint'][$key_wa++] = $val;
-					break;
-				case "C":
-					$this->points['carimbo'][$key_ca++] = $val;
-					break;
-				case "I1":
-					$this->points['inter1'][$key_i1++] = $val;
-					break;
-				case "I2":
-					$this->points['inter2'][$key_i2++] = $val;
-					break;
-				case "I3":
-					$this->points['inter3'][$key_i3++] = $val;
-					break;
-				case "I4":
-					$this->points['inter4'][$key_i4++] = $val;
-					break;
-				case "IR":
-					$this->points['entradas'][$key_ir++] = $val;
-					break;
-				case "FR":
-					$this->points['saidas'][$key_fr++] = $val;
-					break;
-			}
-			
-		}
-		
-		$this->points_ini = $this->points;
-		
-		//return $this->points;
-		return $array_data;
+		$this->points_ini = $this->points = $array_data;
 	}
 
 #endregion
