@@ -124,6 +124,12 @@ class snaptrac{
 	 * @var string
 	 */
 	public $relatorio_exportar_chronosat;
+	
+	/**
+	 * Especial atualmente sendo processada
+	 * @var integer
+	 */
+	public $current_ss
 			
 
 #endregion
@@ -162,8 +168,8 @@ class snaptrac{
 		$this->report_path = $st['Parametros']['report_path'];
 		$this->functions = new functions();
 		$this->arr_tipo = array(
-			'L' => 'largada',
-			'F' => 'chegada',
+			'LT' => 'largada',
+			'CT' => 'chegada',
 			'W' => 'waypoints',
 			'C' => 'carimbo',
 			'I1' => 'inter1',
@@ -173,6 +179,7 @@ class snaptrac{
 			'IR' => 'entradas',
 			'FR' => 'saidas'
 		);		
+		$this->current_ss = $st['Parametros']['current_ss'];
 		
 		$this->relatorio_geral_pontos = '';
 		$this->relatorio_exportar_chronosat = '';		
@@ -589,7 +596,7 @@ USER GRID,0,0,0,0,0
 			
 			} 
 			elseif ($tipo=='exportar_chronosat_unitario'){
-				$string = sprintf("Veículo;Tipo de tempo;Tempo;Obs\r\n");
+				$string = sprintf("Veículo;SS;Tipo de tempo;Tempo;Obs\r\n");
 				$string_aux = "";
 				$arr_linha = array();
 				foreach ($this->arr_tipo AS $tipo_key => $tipo){
@@ -607,8 +614,9 @@ USER GRID,0,0,0,0,0
 					foreach($voltas AS $num_volta => $volta){
 						foreach($volta AS $tipo_key => $ocorrencia){
 							foreach($ocorrencia AS $oco_key => $oco_val){
-								$string_aux .= sprintf("%s;%s;%s;%s\r\n"
+								$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
 									,$veiculo
+									,$this->current_ss
 									,$tipo_key
 									,$oco_val['hora']
 									,"Passagem ".$num_volta." em ".$this->arr_tipo[$tipo_key]." (".($oco_key+1).") a ".$oco_val['velocidade']."km/h"
@@ -618,9 +626,10 @@ USER GRID,0,0,0,0,0
 					}
 				}
 				foreach($this->radar AS $keyRadar => $radar){
-					$string_aux .= sprintf("%s;%s;%s;%s\r\n"
+					$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
 						,intval($folder)
-						,'P'
+						,$this->current_ss
+						,'PR'
 						,$radar['hora']
 						,"Ocorrência de excesso de velocidade (".$radar['velocidade']."km/h) em ZVC."
 					);
