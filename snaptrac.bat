@@ -1,1 +1,1 @@
-C:\Users\rafael.dias\Documents\chronosat\php5\php.exe snaptrac.php
+C:\chronosat\php5\php.exe snaptrac.php
