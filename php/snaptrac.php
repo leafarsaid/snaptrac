@@ -129,7 +129,7 @@ class snaptrac{
 	 * Especial atualmente sendo processada
 	 * @var integer
 	 */
-	public $current_ss
+	public $current_ss;
 			
 
 #endregion
