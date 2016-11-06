@@ -171,7 +171,7 @@ class snaptrac{
 			'LT' => 'largada',
 			'CT' => 'chegada',
 			'W' => 'waypoints',
-			'C' => 'carimbo',
+			'CB' => 'carimbo',
 			'I1' => 'inter1',
 			'I2' => 'inter2',
 			'I3' => 'inter3',
@@ -282,7 +282,7 @@ class snaptrac{
 					$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
 					$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
 					$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
-					$this->trac[$folder][$hora]['hora'] = substr($trkpt->time,-9,8);   	
+					$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,-9,8)) + strtotime($this->fuso)));  	
 					$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
 					//distancia em km
 					if ($previousKey > 0){
