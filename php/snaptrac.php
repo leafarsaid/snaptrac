@@ -160,6 +160,7 @@ class snaptrac{
 		
 		$this->velmax = $st['Parametros']['velmax'];
 		$this->fuso = $st['Parametros']['fuso'];
+		$this->fuso = (substr($this->fuso,0,1)=='-') ? strtotime(substr($this->fuso,1))*-1 : strtotime(substr($this->fuso,1));
 		$this->gate = floatval($st['Parametros']['gate']);
 		$this->steps_length = floatval($st['Parametros']['steps_length']);
 		$this->arq_pontos = $st['Parametros']['pontos'];
@@ -282,7 +283,7 @@ class snaptrac{
 					$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
 					$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
 					$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
-					$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,-9,8)) + strtotime($this->fuso)));  	
+					$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,-9,8)) + $this->fuso));  	
 					$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
 					//distancia em km
 					if ($previousKey > 0){
