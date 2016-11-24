@@ -312,12 +312,12 @@ class snaptrac{
 					
 					$previousKey = $hora;
 				}			
-				rename($this->import_path."/".$file, $this->processed_path."/".$file);
+				//rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
 			$this->pointProcess($folder);
 			$this->zoneProcess($folder);
 			$this->radarProcess($folder);
-			$this->reportFile($file,'exportar_chronosat_unitario');
+			//$this->reportFile($file,'exportar_chronosat_unitario');
 			//$this->reportFile($file,'radar');
 			//$this->reportFile($file,'points');
 			//$this->reportFile($file,'relatorio_pontos');
@@ -353,6 +353,8 @@ class snaptrac{
 				//filtrando pontos
 				if (isset($this->points[$tipo][$key]['snap'][$folder])){
 					$laps = $this->group($this->points[$tipo][$key]['snap'][$folder],300);
+					echo(count($laps));
+					
 					//limpando array
 					$this->points[$tipo][$key]['snap'][$folder] = array();
 					
@@ -366,6 +368,11 @@ class snaptrac{
 							$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
 						//}
 					}
+
+					/*if($tipo=='waypoints' && $key===0){
+						var_dump($this->points[$tipo][$key]['snap'][$folder]);
+						echo('----------------------------------------------------------------------------------');
+					}*/
 				}
 			}
 		}
@@ -465,17 +472,24 @@ class snaptrac{
 		$group = array();
 		
 		$indiceAnterior = 0;
+		$pontoAnterior = array();
 		$j = 0;
-				
+		//echo "(";		
 		foreach($arrPoints AS $tracPoint){
+			
 			$indice = $tracPoint['indice'];
+
+			//echo ($this->functions->distancia($tracPoint,$pontoAnterior) > ($this->gate/1000)) ? "SIM" : "NAO";
+			//echo "<br>";
+			$pontoAnterior = $tracPoint;
+
 			if (($indice-$indiceAnterior) > $interval){
 				$j++;
 			}				
 			$group[$j][] = $tracPoint;
 			$indiceAnterior = $indice;
 		}
-		
+		//echo ")<br><br><br><br>";
 		return $group;
 	}
 	

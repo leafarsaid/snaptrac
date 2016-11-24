@@ -7,7 +7,7 @@ require_once 'lib/objDB.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
-$snaptrac->process();
+//$snaptrac->process();
 
 /*
 $pto1['latitude'] = floatval('-22.715141969869308'); 
@@ -18,13 +18,14 @@ $pto2['longitude'] = floatval('-48.57213796451693');
 echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 */
 
-//echo '<pre>';
+echo '<pre>';
 
-//$snaptrac->getPoints();
-//$snaptrac->tracProcess();
+$snaptrac->getPoints();
+$snaptrac->tracProcess();
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
 //var_dump($snaptrac->points);
+//sleep(5000);
 
 //$snaptrac->tracProcess();
 //var_dump($snaptrac->trac);
