@@ -3,8 +3,8 @@
 require_once 'functions.php';
 
 class snaptrac{
-	
-#region Atributos
+
+
 #region Constantes
 	
 	/**
@@ -55,7 +55,7 @@ class snaptrac{
 	 */
 	public $steps_length;
 	
-#endregion
+	#endregion
 	
 #region Resultantes
 	
@@ -130,9 +130,10 @@ class snaptrac{
 	 * @var integer
 	 */
 	public $current_ss;
-			
 
-#endregion
+	#endregion
+
+#region Atributos acessórios
 	
 	/**
 	 * Array com caminhos para arquivos dos competidores
@@ -145,10 +146,10 @@ class snaptrac{
 	 * @var object
 	 */
 	public $functions;
-	
-#endregion
 
-#region Construtor
+	#endregion
+
+#region Métodos
 	
 	/** Método construtor
 	 *
@@ -179,17 +180,13 @@ class snaptrac{
 			'I4' => 'inter4',
 			'IR' => 'entradas',
 			'FR' => 'saidas'
-		);		
+		);
 		$this->current_ss = $st['Parametros']['current_ss'];
 		
 		$this->relatorio_geral_pontos = '';
-		$this->relatorio_exportar_chronosat = '';		
+		$this->relatorio_exportar_chronosat = '';
 	}
 
-#endregion	
-	
-#region getPoints
-	
 	/** Converte as coordenadas da planinha em uma matriz de pontos
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -203,7 +200,7 @@ class snaptrac{
 		if (($handle = fopen($this->arq_pontos, "r")) !== FALSE) {
 			while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
 				$pointer = trim($data[0]);
-				$coords = $data[1];
+				$coords = $data[2];
 				$coords = str_replace('S', '-', $coords);
 				$coords = str_replace('N', '+', $coords);
 				$coords = str_replace('W', '-', $coords);
@@ -214,6 +211,7 @@ class snaptrac{
 				
 				$pto['latitude'] = $exp[0]*1;
 				$pto['longitude'] = $exp[1]*1;
+				$pto['descricao'] = $data[1];
 				$pto['snap'] = array();
 				
 				$tipo_pto = 'nada';				
@@ -222,7 +220,7 @@ class snaptrac{
 						$tipo_pto = $tipo_pto_val;
 					}
 				}
-				
+
 				$array_data[$tipo_pto][] = $pto;
 			}
 			fclose($handle);
@@ -230,10 +228,6 @@ class snaptrac{
 		
 		$this->points_ini = $this->points = $array_data;
 	}
-
-#endregion
-
-#region Processo Principal
 	
 	public function process(){
 		try{
@@ -243,12 +237,7 @@ class snaptrac{
 			echo $e->getMessage();
 		}
 	}
-
-#endregion
-
-#region Processos Auxiliares
-
-	#region tracProcess
+	
 	/** Processa a trilha
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -293,7 +282,9 @@ class snaptrac{
 					}
 					$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
 					$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
-					$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+					if($hora > $previousKey){
+						$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+					}
 					$vel = ($vel > 0) ? $vel : 0;
 					$this->trac[$folder][$hora]['velocidade'] = $vel;
 					if ($vel > $this->velmax){	
@@ -317,7 +308,7 @@ class snaptrac{
 			$this->pointProcess($folder);
 			$this->zoneProcess($folder);
 			$this->radarProcess($folder);
-			//$this->reportFile($file,'exportar_chronosat_unitario');
+			$this->reportFile($file,'exportar_chronosat_unitario');
 			//$this->reportFile($file,'radar');
 			//$this->reportFile($file,'points');
 			//$this->reportFile($file,'relatorio_pontos');
@@ -327,10 +318,9 @@ class snaptrac{
 			
 		}
 		//$this->reportFile('','relatorio_geral_pontos');
-		$this->reportFile('','exportar_chronosat');
+		//$this->reportFile('','exportar_chronosat');
 	}
-	#endregion
-		
+			
 	/** Processa os pontos da planilha para achar a tangente na trilha
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -353,7 +343,7 @@ class snaptrac{
 				//filtrando pontos
 				if (isset($this->points[$tipo][$key]['snap'][$folder])){
 					$laps = $this->group($this->points[$tipo][$key]['snap'][$folder],300);
-					echo(count($laps));
+					//echo(count($laps));
 					
 					//limpando array
 					$this->points[$tipo][$key]['snap'][$folder] = array();
@@ -378,7 +368,6 @@ class snaptrac{
 		}
 	}
 	
-
 	private function zoneProcess($folder){
 		
 		//somente entradas possuem zones
@@ -391,7 +380,6 @@ class snaptrac{
 				}
 			}
 		}
-		
 	}
 	
 	private function radarProcess($folder){
@@ -432,9 +420,6 @@ class snaptrac{
 		}
 	}*/
 
-#endregion
-	
-#region Métodos Úteis	
 	/**  Retorna ponto mais próximo de uma lista para uma referência
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -532,12 +517,7 @@ class snaptrac{
 		touch($path);			
 		$handle = fopen($path, "w");
 		if ($handle){
-			$string = "Version,212
-
-WGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0
-USER GRID,0,0,0,0,0
-
-";			
+			$string = sprintf("Version,212\r\n\r\nWGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0\r\nUSER GRID,0,0,0,0,0\r\n\r\n");			
 			if ($tipo=='points'){
 				foreach ($this->points['entradas'] AS $key => $point){
 					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,151,0,13\r\n"
@@ -585,8 +565,7 @@ USER GRID,0,0,0,0,0
 				
 				$string .= $string_aux;
 				$this->relatorio_geral_pontos .= $string_aux;
-				
-				
+							
 			} 
 			elseif ($tipo=='relatorio_radar'){
 				
@@ -601,9 +580,7 @@ USER GRID,0,0,0,0,0
 				$string .= sprintf("\r\n");
 				$string .= "Maior velocidade encontrada (km/h): ".$maiorVelocidade;
 				$string .= sprintf("\r\n");
-				
-				
-				
+							
 			} 
 			elseif ($tipo=='relatorio_geral_pontos'){	
 				$string = sprintf("Veículo;Passagem;Largada;Chegada;Tempo\r\n");			
@@ -611,35 +588,36 @@ USER GRID,0,0,0,0,0
 			
 			} 
 			elseif ($tipo=='exportar_chronosat_unitario'){
-				$string = sprintf("Veículo;SS;Tipo de tempo;Tempo;Obs\r\n");
+				$string = sprintf("Veículo;SS;Tipo de tempo;Horário;Obs\r\n");
 				$string_aux = "";
 				$arr_linha = array();
-				foreach ($this->arr_tipo AS $tipo_key => $tipo){
-					foreach ($this->points[$tipo] AS $key => $point){						
-						$volta = 1;
+				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
+					foreach ($this->points[$tipo_desc] AS $key_point => $point){
 						foreach($point['snap'] AS $key_snap => $snap){
-							if ($folder == $key_snap){
-								$arr_linha[intval($folder)][$volta][$tipo_key][$key] = $snap[$volta-1];
-								$volta++;
+							foreach($snap AS $volta => $detalhes){
+								$key_point_txt = $point['descricao'];
+								$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;
 							}
 						}
 					}
 				}
-				foreach($arr_linha AS $veiculo => $voltas){
-					foreach($voltas AS $num_volta => $volta){
-						foreach($volta AS $tipo_key => $ocorrencia){
-							foreach($ocorrencia AS $oco_key => $oco_val){
+
+				foreach($arr_linha AS $veiculo => $tipos_ponto){
+					foreach($tipos_ponto AS $tipo_key => $pontos){
+						foreach($pontos AS $point_key => $voltas){
+							foreach($voltas AS $num_volta => $volta){
 								$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
 									,$veiculo
 									,$this->current_ss
 									,$tipo_key
-									,$oco_val['hora']
-									,"Passagem ".$num_volta." em ".$this->arr_tipo[$tipo_key]." (".($oco_key+1).") a ".$oco_val['velocidade']."km/h"
+									,$volta['hora']
+									,$point_key. " - Passagem: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h"
 								);
 							}
 						}
 					}
 				}
+
 				foreach($this->radar AS $keyRadar => $radar){
 					$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
 						,intval($folder)
@@ -655,7 +633,7 @@ USER GRID,0,0,0,0,0
 						
 			} 
 			elseif ($tipo=='exportar_chronosat'){
-				$string = sprintf("Veículo;Tipo de tempo;Tempo;Obs\r\n");
+				$string = sprintf("Veículo;SS;Tipo de tempo;Horário;Obs\r\n");
 				$string .= $this->relatorio_exportar_chronosat;
 				
 			}
@@ -674,6 +652,7 @@ USER GRID,0,0,0,0,0
 		fclose($handle);
 		
 	}
-#endregion
+
+	#endregion
 
 }
