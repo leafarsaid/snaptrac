@@ -118,18 +118,14 @@ class snaptrac{
 	 * @var string
 	 */
 	public $relatorio_geral_pontos;
-	
-	/**
-	 * String com relátório de todos os carros para exportar para Chronosat
-	 * @var string
-	 */
-	public $relatorio_exportar_chronosat;
-	
-	/**
-	 * Especial atualmente sendo processada
-	 * @var integer
-	 */
+	public $relatorio_exportar_chronosat;	
 	public $current_ss;
+	public $lost_wp_penalty;
+	public $laps_ss;
+	public $zvc1_mintime;
+	public $zvc2_mintime;
+	public $zvc3_mintime;
+	public $stamp_vel;
 
 	#endregion
 
@@ -181,10 +177,17 @@ class snaptrac{
 			'IR' => 'entradas',
 			'FR' => 'saidas'
 		);
-		$this->current_ss = $st['Parametros']['current_ss'];
 		
 		$this->relatorio_geral_pontos = '';
-		$this->relatorio_exportar_chronosat = '';
+		$this->relatorio_exportar_chronosat = '';		
+		$this->current_ss = $st['Parametros']['current_ss'];
+		$this->lost_wp_penalty = $st['Parametros']['lost_wp_penalty'];
+		$this->laps_ss = $st['Parametros']['laps_ss'];
+		$this->zvc1_mintime = $st['Parametros']['zvc1_mintime'];
+		$this->zvc2_mintime = $st['Parametros']['zvc2_mintime'];
+		$this->zvc3_mintime = $st['Parametros']['zvc3_mintime'];
+		$this->stamp_vel = $st['Parametros']['stamp_vel'];
+
 	}
 
 	/** Converte as coordenadas da planinha em uma matriz de pontos
@@ -318,7 +321,7 @@ class snaptrac{
 			
 		}
 		//$this->reportFile('','relatorio_geral_pontos');
-		//$this->reportFile('','exportar_chronosat');
+		$this->reportFile('','exportar_chronosat');
 	}
 			
 	/** Processa os pontos da planilha para achar a tangente na trilha
@@ -477,6 +480,25 @@ class snaptrac{
 		//echo ")<br><br><br><br>";
 		return $group;
 	}
+
+	public function naoPassouNumPonto($tipo_pto, $passagens){
+		foreach($this->points AS $tipo => $ponto) {
+			if($tipo == $tipo_pto){				
+				//$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta]
+				foreach($passagens AS $veiculo => $tipos_ponto_pass){
+					foreach($tipos_ponto_pass AS $tipo_key => $pontos){
+						foreach($pontos AS $point_key => $voltas){
+							foreach($voltas AS $num_volta => $volta){
+								if (count($volta) > 0){
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	/** Lê pasta dos arquivos dos competidores
 	 *
@@ -593,10 +615,19 @@ class snaptrac{
 				$arr_linha = array();
 				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
 					foreach ($this->points[$tipo_desc] AS $key_point => $point){
+
+						if($tipo_key=='W' && count($point['snap']) < $this->laps_ss){
+							$num_perdas = $this->laps_ss - count($point['snap']);
+
+							for($i=0;$i<$num_perdas;$i++){
+								$arr_linha[intval($folder)]['PT']['Penalidade por perda de Waypoint - '][$i] = $this->lost_wp_penalty;
+							}
+						}
+
 						foreach($point['snap'] AS $key_snap => $snap){
 							foreach($snap AS $volta => $detalhes){
 								$key_point_txt = $point['descricao'];
-								$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;
+								$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;	
 							}
 						}
 					}
@@ -606,18 +637,23 @@ class snaptrac{
 					foreach($tipos_ponto AS $tipo_key => $pontos){
 						foreach($pontos AS $point_key => $voltas){
 							foreach($voltas AS $num_volta => $volta){
-								$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
+								$string .= sprintf("%s;%s;%s;%s;%s\r\n"
 									,$veiculo
 									,$this->current_ss
 									,$tipo_key
 									,$volta['hora']
-									,$point_key. " - Passagem: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h"
-								);
+									,$point_key. " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h"
+								);							
+
+								if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
+									$string_aux .= $string;
+								}
 							}
 						}
 					}
 				}
 
+				/*
 				foreach($this->radar AS $keyRadar => $radar){
 					$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
 						,intval($folder)
@@ -627,8 +663,9 @@ class snaptrac{
 						,"Ocorrência de excesso de velocidade (".$radar['velocidade']."km/h) em ZVC."
 					);
 				}
+				*/
 				
-				$string .= $string_aux;
+				//$string .= $string_aux;
 				$this->relatorio_exportar_chronosat .= $string_aux;
 						
 			} 
