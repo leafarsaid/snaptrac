@@ -3,7 +3,7 @@ ini_set('memory_limit', '16000M');
 set_time_limit (0);
 include_once 'php/snaptrac.php';
 include_once 'php/functions.php';
-require_once 'lib/objDB.php';
+//require_once 'lib/objDB.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
 
@@ -24,7 +24,7 @@ echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 //$snaptrac->tracProcess();
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
-var_dump($snaptrac->points);
+//var_dump($snaptrac->points);
 //sleep(5000);
 
 //$snaptrac->tracProcess();
