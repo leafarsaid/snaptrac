@@ -121,11 +121,22 @@ class snaptrac{
 	public $relatorio_exportar_chronosat;	
 	public $current_ss;
 	public $lost_wp_penalty;
+	public $lost_stamp_penalty;
+	public $maxspeed_occ_penalty;
 	public $laps_ss;
-	public $zvc1_mintime;
-	public $zvc2_mintime;
-	public $zvc3_mintime;
 	public $stamp_vel;
+	public $zvc1_mintime;
+	public $zvc1_mintime_penalty;
+	public $zvc1_continuos;
+	public $zvc1_continuos_penalty;
+	public $zvc2_mintime;
+	public $zvc2_mintime_penalty;
+	public $zvc2_continuos;
+	public $zvc2_continuos_penalty;
+	public $zvc3_mintime;
+	public $zvc3_mintime_penalty;
+	public $zvc3_continuos;
+	public $zvc3_continuos_penalty;
 
 	#endregion
 
@@ -182,11 +193,22 @@ class snaptrac{
 		$this->relatorio_exportar_chronosat = '';		
 		$this->current_ss = $st['Parametros']['current_ss'];
 		$this->lost_wp_penalty = $st['Parametros']['lost_wp_penalty'];
+		$this->lost_stamp_penalty = $st['Parametros']['lost_stamp_penalty'];
+		$this->maxspeed_occ_penalty = $st['Parametros']['maxspeed_occ_penalty'];
 		$this->laps_ss = $st['Parametros']['laps_ss'];
-		$this->zvc1_mintime = $st['Parametros']['zvc1_mintime'];
-		$this->zvc2_mintime = $st['Parametros']['zvc2_mintime'];
-		$this->zvc3_mintime = $st['Parametros']['zvc3_mintime'];
 		$this->stamp_vel = $st['Parametros']['stamp_vel'];
+		$this->zvc1_mintime = $st['Parametros']['zvc1_mintime'];
+		$this->zvc1_mintime_penalty = $st['Parametros']['zvc1_mintime_penalty'];
+		$this->zvc1_continuos = $st['Parametros']['zvc1_continuos'];
+		$this->zvc1_continuos_penalty = $st['Parametros']['zvc1_continuos_penalty'];
+		$this->zvc2_mintime = $st['Parametros']['zvc2_mintime'];
+		$this->zvc2_mintime_penalty = $st['Parametros']['zvc2_mintime_penalty'];
+		$this->zvc2_continuos = $st['Parametros']['zvc2_continuos'];
+		$this->zvc2_continuos_penalty = $st['Parametros']['zvc2_continuos_penalty'];
+		$this->zvc3_mintime = $st['Parametros']['zvc3_mintime'];
+		$this->zvc3_mintime_penalty = $st['Parametros']['zvc3_mintime_penalty'];
+		$this->zvc3_continuos = $st['Parametros']['zvc3_continuos'];
+		$this->zvc3_continuos_penalty = $st['Parametros']['zvc3_continuos_penalty'];
 
 	}
 
@@ -374,38 +396,47 @@ class snaptrac{
 		}
 	}
 	
+	/** Coloca nos pontos de entrada a informação de todos os pontos que estão dentro da zona referente a entrada
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 06/12/2016
+	 */
 	private function zoneProcess($folder){
 		
 		//somente entradas possuem zones
 		foreach ($this->points['entradas'] AS $key => $point){
 			foreach($point['snap'][$folder] AS $keySnap => $snap){
 				foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
-					if ($ptTrac['indice'] >= $snap['indice'] && $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']){
-						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][] = $ptTrac['indice'];
-						if($ptTrac['velocidade'] > $this->velmax){
-							$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone']['ocorr_vel_max']++;
-						}
+					if ($ptTrac['indice'] >= $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice']
+						&& $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']
+						&&$ptTrac['velocidade'] > 0){
+
+						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][] = $ptTrac['indice']."|".$ptTrac['velocidade'];
 					}
 				}
 			}
 		}
 	}	
 	
-	private function radarProcess($folder){
-		$zones = array();
+	/** Coloca nos pontos de entrada a informação de todos os pontos que estão dentro da zona referente a entrada, 
+	que ultrapassaram a velocidade máxima
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 06/12/2016
+	 */
+	private function radarProcess($folder){	
 		
-		foreach($this->points['entradas'] AS $key => $point){
-			foreach($this->points['entradas'][$key]['snap'][$folder] AS $snap){
-				if (is_array($zones) && is_array($snap['zone'])){
-					$zones = array_merge($zones,$snap['zone']);	
+		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
+			foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
+				if(is_array($snap['zone'])){
+					foreach ($snap['zone'] AS $keyZone => $oco){
+						$tmp_oco = explode("|",$oco);
+						$vel = $tmp_oco[1];
+						if ($vel >= $this->velmax){
+							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar'][] = $oco;
+						}
+					}
 				}
-			}
-		}
-		
-		foreach($this->trac[$folder] AS $trac){
-			
-			if ($trac['velocidade'] > $this->velmax && in_array($trac['indice'],$zones)){
-				$this->radar[] = $trac;
 			}
 		}
 	}
@@ -593,15 +624,12 @@ class snaptrac{
 
 						if($tipo_key=='CB' && (count($point['snap']) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
 							$key_point_txt = $point['descricao'];
-							$arr_linha[intval($folder)]['PT']['Penalidade por perda de Carimbo - '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
+							$arr_linha[intval($folder)]['PT']['Penalidade por perda de Carimbo - '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
 						}
 
-						if($tipo_key=='IR' && count($point['zone']) > 0){
-							foreach($point['zone'] AS $zonekey => $zone){
-								if ($zone['ocorr_vel_max'] > 0){
-									$arr_linha[intval($folder)]['PT']['Penalidade por ultrapassar velocidade máxima na Zona '.$zonekey][] = array("hora"=>$this->lost_wp_penalty);
-								}
-							}
+						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar']) > 0){
+							$key_point_txt = $point['descricao'];
+							$arr_linha[intval($folder)]['PT']['Penalidade por ultrapassar velocidade máxima na Zona iniciada em '.$key_point_txt][] = array("hora"=>$this->maxspeed_occ_penalty);
 						}
 
 						foreach($point['snap'] AS $key_snap => $snap){
@@ -618,20 +646,24 @@ class snaptrac{
 						foreach($pontos AS $point_key => $voltas){
 							foreach($voltas AS $num_volta => $volta){
 
-								$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
+								//descartar outras voltas
+								if($num_volta==0){
 
-								$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
-									,$veiculo
-									,$this->current_ss
-									,$tipo_key
-									,$volta['hora']
-									,$point_key.$obs
-								);
+									$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
 
-								$string .= $string_tmp;
+									$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
+										,$veiculo
+										,$this->current_ss
+										,$tipo_key
+										,$volta['hora']
+										,$point_key.$obs
+									);
 
-								if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
-									$string_aux .= $string_tmp;
+									$string .= $string_tmp;
+
+									if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
+										$string_aux .= $string_tmp;
+									}
 								}
 							}
 						}						
@@ -639,7 +671,7 @@ class snaptrac{
 				}
 
 				
-				foreach($this->radar AS $keyRadar => $radar){
+				/*foreach($this->radar AS $keyRadar => $radar){
 					$string .= sprintf("%s;%s;%s;%s;%s\r\n"
 						,intval($folder)
 						,$this->current_ss
@@ -647,7 +679,7 @@ class snaptrac{
 						,$radar['hora']
 						,"Ocorrência de excesso de velocidade (".$radar['velocidade']."km/h) em ZVC."
 					);
-				}
+				}*/
 				
 				
 				//$string .= $string_aux;

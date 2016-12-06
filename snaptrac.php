@@ -3,6 +3,7 @@ ini_set('memory_limit', '16000M');
 set_time_limit (0);
 include_once 'php/snaptrac.php';
 include_once 'php/functions.php';
+include_once 'lib/krumo/class.krumo.php';
 //require_once 'lib/objDB.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
@@ -18,13 +19,14 @@ $pto2['longitude'] = floatval('-48.57213796451693');
 echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 */
 
-//echo '<pre>';
+echo '<pre>';
 
 //$snaptrac->getPoints();
 //$snaptrac->tracProcess();
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
-var_dump($snaptrac->points);
+krumo($snaptrac->points);
+//var_dump($snaptrac->radar);
 //sleep(5000);
 
 //$snaptrac->tracProcess();
