@@ -24,7 +24,7 @@ echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 //$snaptrac->tracProcess();
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
-//var_dump($snaptrac->points);
+var_dump($snaptrac->points);
 //sleep(5000);
 
 //$snaptrac->tracProcess();

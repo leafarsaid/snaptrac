@@ -1,0 +1,17 @@
+Veículo;SS;Tipo de tempo;Horário;Obs
+300;2;LT;12:26:04;Largada - Ocorrência: 1 - Velocidade: 35.2km/h
+300;2;LT;15:26:04;Largada - Ocorrência: 2 - Velocidade: 36.16km/h
+300;2;PT;00:30:00;Penalidade por perda de Waypoint - WP003
+300;2;PT;00:30:00;Penalidade por perda de Waypoint - WP021
+300;2;PT;00:30:00;Penalidade por perda de Waypoint - WP027
+300;2;PT;00:30:00;Penalidade por perda de Waypoint - WP036
+300;2;PT;00:30:00;Penalidade por perda de Waypoint - WP037
+300;2;I1;12:58:29;Primeira Intermediária - Ocorrência: 1 - Velocidade: 15.56km/h
+300;2;I1;14:12:25;Primeira Intermediária - Ocorrência: 2 - Velocidade: 24.6km/h
+300;2;I1;15:46:19;Primeira Intermediária - Ocorrência: 3 - Velocidade: 27.6km/h
+300;2;I3;10:14:21;Terceira Intermediária - Ocorrência: 1 - Velocidade: 33.67km/h
+300;2;I3;13:14:13;Terceira Intermediária - Ocorrência: 2 - Velocidade: 37.42km/h
+300;2;I3;16:37:47;Terceira Intermediária - Ocorrência: 3 - Velocidade: 49.58km/h
+300;2;I4;10:21:52;Quarta Intermediária - Ocorrência: 1 - Velocidade: 54.46km/h
+300;2;I4;13:24:19;Quarta Intermediária - Ocorrência: 2 - Velocidade: 54.85km/h
+300;2;I4;16:45:38;Quarta Intermediária - Ocorrência: 3 - Velocidade: 66.07km/h
