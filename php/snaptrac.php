@@ -429,16 +429,18 @@ class snaptrac{
 		
 		//somente entradas possuem zones
 		foreach ($this->points['entradas'] AS $key => $point){
-			foreach($point['snap'][$folder] AS $keySnap => $snap){
-				foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
-					if ($ptTrac['indice'] >= $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice']
-						&& $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']
-						&& $ptTrac['velocidade'] > 0){
+			if(is_array($point['snap'][$folder])){
+				foreach($point['snap'][$folder] AS $keySnap => $snap){
+					foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
+						if ($ptTrac['indice'] >= $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice']
+							&& $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']
+							&& $ptTrac['velocidade'] > 0){
 
-						$idx = $ptTrac['indice'];
-						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][$idx] = $ptTrac['velocidade'];
-						$tempo = $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice'] - $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice'];
-						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone']['tempo'] = $tempo;
+							$idx = $ptTrac['indice'];
+							$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][$idx] = $ptTrac['velocidade'];
+							$tempo = $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice'] - $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice'];
+							$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone']['tempo'] = $tempo;
+						}
 					}
 				}
 			}
@@ -454,21 +456,23 @@ class snaptrac{
 	private function radarProcess($folder){	
 		
 		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
-			foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
-				if(is_array($snap['zone'])){
-					foreach ($snap['zone'] AS $keyZone => $vel){						
-						if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
-						if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
-						if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
-						if ($keyEntrada == 3) $maxspeed = $this->zvc4_maxspeed;
-						if ($vel >= $maxspeed && $vel < ($maxspeed+$this->radar1)){
-							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar1'][$keyZone] = $vel;
-						}
-						if ($vel >= ($maxspeed+$this->radar1) && $vel < ($maxspeed+$this->radar2)){
-							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar2'][$keyZone] = $vel;
-						}
-						if ($vel >= ($maxspeed+$this->radar2)){
-							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar3'][$keyZone] = $vel;
+			if(is_array($point['snap'][$folder])){
+				foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
+					if(is_array($snap['zone'])){
+						foreach ($snap['zone'] AS $keyZone => $vel){						
+							if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
+							if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
+							if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
+							if ($keyEntrada == 3) $maxspeed = $this->zvc4_maxspeed;
+							if ($vel >= $maxspeed && $vel < ($maxspeed+$this->radar1)){
+								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar1'][$keyZone] = $vel;
+							}
+							if ($vel >= ($maxspeed+$this->radar1) && $vel < ($maxspeed+$this->radar2)){
+								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar2'][$keyZone] = $vel;
+							}
+							if ($vel >= ($maxspeed+$this->radar2)){
+								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar3'][$keyZone] = $vel;
+							}
 						}
 					}
 				}
