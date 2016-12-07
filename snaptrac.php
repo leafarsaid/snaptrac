@@ -19,7 +19,7 @@ $pto2['longitude'] = floatval('-48.57213796451693');
 echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 */
 
-echo '<pre>';
+//echo '<pre>';
 
 //$snaptrac->getPoints();
 //$snaptrac->tracProcess();

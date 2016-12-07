@@ -355,7 +355,7 @@ class snaptrac{
 					
 					$previousKey = $hora;
 				}			
-				//rename($this->import_path."/".$file, $this->processed_path."/".$file);
+				rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
 			$this->pointProcess($folder);
 			$this->zoneProcess($folder);
