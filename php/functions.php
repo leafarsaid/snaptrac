@@ -3,7 +3,7 @@
 class functions{
 	
 	public function toTime($secs,$fuso=0){
-		$hh = $secs/360000;
+		/*$hh = $secs/360000;
 		if($hh < 1){
 			$hh = '00';
 		}
@@ -24,7 +24,8 @@ class functions{
 		$ss = substr($tmp,5,2);
 		$hora = $hh + $fuso;
 		 
-		return $hora+":"+$mm+":"+$ss;
+		return $hora+":"+$mm+":"+$ss;*/
+		
 	}
 	
 	public function distancia($pt1,$pt2) {	

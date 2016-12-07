@@ -25,7 +25,7 @@ echo '<pre>';
 //$snaptrac->tracProcess();
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
-krumo($snaptrac->points);
+//krumo($snaptrac->points);
 //var_dump($snaptrac->radar);
 //sleep(5000);
 

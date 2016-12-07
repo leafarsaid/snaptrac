@@ -62,25 +62,28 @@ class snaptrac{
 	public $laps_ss;
 	public $stamp_vel;
 
-	public $zvc1_mintime;
+	public $radar1;
+	public $radar2;
+	public $radar1_penalty;
+	public $radar2_penalty;
+	public $radar3_penalty;
+	public $sec_continuous;
+
+	public $zvc1_mintime_x2;
+	public $zvc1_mintime_x3;
 	public $zvc1_maxspeed;
-	public $zvc1_continuos;
-	public $zvc1_continuos_penalty;
 
-	public $zvc2_mintime;
+	public $zvc2_mintime_x2;
+	public $zvc2_mintime_x3;
 	public $zvc2_maxspeed;
-	public $zvc2_continuos;
-	public $zvc2_continuos_penalty;
 
-	public $zvc3_mintime;
+	public $zvc3_mintime_x2;
+	public $zvc3_mintime_x3;
 	public $zvc3_maxspeed;
-	public $zvc3_continuos;
-	public $zvc3_continuos_penalty;
 
-	public $zvc4_mintime;
+	public $zvc4_mintime_x2;
+	public $zvc4_mintime_x3;
 	public $zvc4_maxspeed;
-	public $zvc4_continuos;
-	public $zvc4_continuos_penalty;
 	
 	#endregion
 	
@@ -208,25 +211,28 @@ class snaptrac{
 		$this->laps_ss = $st['Parametros']['laps_ss'];
 		$this->stamp_vel = $st['Parametros']['stamp_vel'];
 
-		$this->zvc1_mintime = $st['Parametros']['zvc1_mintime'];
-		$this->zvc1_maxspeed = $st['Parametros']['zvc1_maxspeed'];
-		$this->zvc1_continuos = $st['Parametros']['zvc1_continuos'];
-		$this->zvc1_continuos_penalty = $st['Parametros']['zvc1_continuos_penalty'];
+		$this->radar1 = $st['Parametros']['radar1'];
+		$this->radar2 = $st['Parametros']['radar2'];
+		$this->radar1_penalty = $st['Parametros']['radar1_penalty'];
+		$this->radar2_penalty = $st['Parametros']['radar2_penalty'];
+		$this->radar3_penalty = $st['Parametros']['radar3_penalty'];
+		$this->sec_continuous = $st['Parametros']['sec_continuous'];
 
-		$this->zvc2_mintime = $st['Parametros']['zvc2_mintime'];
+		$this->zvc1_mintime_x2 = $st['Parametros']['zvc1_mintime_x2'];
+		$this->zvc1_mintime_x3 = $st['Parametros']['zvc1_mintime_x3'];
+		$this->zvc1_maxspeed = $st['Parametros']['zvc1_maxspeed'];
+
+		$this->zvc2_mintime_x2 = $st['Parametros']['zvc2_mintime_x2'];
+		$this->zvc2_mintime_x3 = $st['Parametros']['zvc2_mintime_x3'];
 		$this->zvc2_maxspeed = $st['Parametros']['zvc2_maxspeed'];
-		$this->zvc2_continuos = $st['Parametros']['zvc2_continuos'];
-		$this->zvc2_continuos_penalty = $st['Parametros']['zvc2_continuos_penalty'];
 		
-		$this->zvc3_mintime = $st['Parametros']['zvc3_mintime'];
+		$this->zvc3_mintime_x2 = $st['Parametros']['zvc3_mintime_x2'];
+		$this->zvc3_mintime_x3 = $st['Parametros']['zvc3_mintime_x3'];
 		$this->zvc3_maxspeed = $st['Parametros']['zvc3_maxspeed'];
-		$this->zvc3_continuos = $st['Parametros']['zvc3_continuos'];
-		$this->zvc3_continuos_penalty = $st['Parametros']['zvc3_continuos_penalty'];
 		
-		$this->zvc4_mintime = $st['Parametros']['zvc4_mintime'];
+		$this->zvc4_mintime_x2 = $st['Parametros']['zvc4_mintime_x2'];
+		$this->zvc4_mintime_x3 = $st['Parametros']['zvc4_mintime_x3'];
 		$this->zvc4_maxspeed = $st['Parametros']['zvc4_maxspeed'];
-		$this->zvc4_continuos = $st['Parametros']['zvc4_continuos'];
-		$this->zvc4_continuos_penalty = $st['Parametros']['zvc4_continuos_penalty'];
 
 	}
 
@@ -383,7 +389,7 @@ class snaptrac{
 					$distancia = $this->functions->distancia($ptTrac,$point);
 					if ($distancia <= ($this->gate/1000)){
 						$this->points[$tipo][$key]['snap'][$folder][] = $ptTrac;						
-					}					
+					}
 				}
 				
 				//filtrando pontos
@@ -427,9 +433,12 @@ class snaptrac{
 				foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
 					if ($ptTrac['indice'] >= $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice']
 						&& $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']
-						&&$ptTrac['velocidade'] > 0){
+						&& $ptTrac['velocidade'] > 0){
 
-						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][] = $ptTrac['indice']."|".$ptTrac['velocidade'];
+						$idx = $ptTrac['indice'];
+						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][$idx] = $ptTrac['velocidade'];
+						$tempo = $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice'] - $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice'];
+						$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone']['tempo'] = $tempo;
 					}
 				}
 			}
@@ -447,15 +456,19 @@ class snaptrac{
 		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
 			foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
 				if(is_array($snap['zone'])){
-					foreach ($snap['zone'] AS $keyZone => $oco){
-						$tmp_oco = explode("|",$oco);
-						$vel = $tmp_oco[1];
+					foreach ($snap['zone'] AS $keyZone => $vel){						
 						if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
 						if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
 						if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
 						if ($keyEntrada == 3) $maxspeed = $this->zvc4_maxspeed;
-						if ($vel >= $maxspeed){
-							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar'][] = $oco;
+						if ($vel >= $maxspeed && $vel < ($maxspeed+$this->radar1)){
+							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar1'][$keyZone] = $vel;
+						}
+						if ($vel >= ($maxspeed+$this->radar1) && $vel < ($maxspeed+$this->radar2)){
+							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar2'][$keyZone] = $vel;
+						}
+						if ($vel >= ($maxspeed+$this->radar2)){
+							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar3'][$keyZone] = $vel;
 						}
 					}
 				}
@@ -635,25 +648,72 @@ class snaptrac{
 				$arr_linha = array();
 				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
 					foreach ($this->points[$tipo_desc] AS $key_point => $point){
+						$key_point_txt = $point['descricao'];
 
-						if($tipo_key=='W' && count($point['snap']) == 0){
-							$key_point_txt = $point['descricao'];
+						// ---------------------------------------------------------------
+
+						if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
 							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
 						}
 
-						if($tipo_key=='CB' && (count($point['snap']) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
-							$key_point_txt = $point['descricao'];
+						// ---------------------------------------------------------------
+
+						if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
 							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
 						}
 
-						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar']) > 1){
-							$key_point_txt = $point['descricao'];
-							$arr_linha[intval($folder)]['PT']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$this->maxspeed_occ_penalty);
+						// Radares -------------------------------------------------------
+						$radar_penalty = '';
+						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
+							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $this->radar1_penalty);						
 						}
+						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
+							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $this->radar2_penalty);
+						}
+						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
+							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $this->radar3_penalty);					
+						}
+						if(strlen($radar_penalty) > 0){
+							$arr_linha[intval($folder)]['PT']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$radar_penalty);
+						}
+						// Radares -------------------------------------------------------
+
+						// ---------------------------------------------------------------
+
+						// Tempo ---------------------------------------------------------
+						$tempo = $point['snap'][$folder][0]['zone']['tempo'];
+						if($key_point == 0){
+							$tempo_x2 = $this->functions->toSec($this->zvc1_mintime_x2);
+							$tempo_x3 = $this->functions->toSec($this->zvc1_mintime_x3);
+						}
+						if($key_point == 1){
+							$tempo_x2 = $this->functions->toSec($this->zvc2_mintime_x2);
+							$tempo_x3 = $this->functions->toSec($this->zvc2_mintime_x3);
+						}
+						if($key_point == 2){
+							$tempo_x2 = $this->functions->toSec($this->zvc3_mintime_x2);
+							$tempo_x3 = $this->functions->toSec($this->zvc3_mintime_x3);
+						}
+						if($key_point == 3){
+							$tempo_x2 = $this->functions->toSec($this->zvc4_mintime_x2);
+							$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
+						}
+
+						$diff_x2 = ($tempo_x2 - $tempo) * 2;
+						$diff_x3 = ($tempo_x3 - $tempo) * 3;
+
+						//$diff_x3 = $key_point;
+						
+						if($tipo_key=='IR' && $diff_x3 > 0){
+							$arr_linha[intval($folder)]['PT']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x3));					
+						}
+						elseif($tipo_key=='IR' && $diff_x2 > 0){
+							$arr_linha[intval($folder)]['PT']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x2));					
+						}
+						// Tempo ---------------------------------------------------------
 
 						foreach($point['snap'] AS $key_snap => $snap){
 							foreach($snap AS $volta => $detalhes){
-								$key_point_txt = $point['descricao'];
 								$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;	
 							}
 						}
@@ -668,7 +728,7 @@ class snaptrac{
 								//descartar outras voltas
 								if($num_volta==0){
 
-									$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
+									//$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
 
 									$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
 										,$veiculo
@@ -724,6 +784,35 @@ class snaptrac{
 		}
 		fclose($handle);
 		
+	}
+
+	/** Penaliza no radar */
+	public function penalizaRadar($arr_radar, $radar_penalty_value){
+										
+		$idx_anterior = 0;
+		$continuo = 0;
+
+		foreach ($arr_radar AS $idx => $vel){
+
+			if ($idx_anterior > 0 && (($idx-$idx_anterior) == 1) ){
+				$continuo++;
+			}
+			elseif($continuo < $this->sec_continuous){
+				//falhando volta a zero caso já não tenha encontrado ocorrencia de continuidade
+				$continuo = 0;
+			}
+
+			$idx_anterior = $idx;
+		}	
+
+		if ($continuo >= $this->sec_continuous){
+			$radar_penalty = $radar_penalty_value;
+		}
+		else{
+			$radar_penalty = '';
+		}
+		
+		return $radar_penalty;
 	}
 
 	#endregion
