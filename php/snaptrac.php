@@ -54,6 +54,33 @@ class snaptrac{
 	 * @var string
 	 */
 	public $steps_length;
+
+	public $current_ss;
+	public $lost_wp_penalty;
+	public $lost_stamp_penalty;
+	public $maxspeed_occ_penalty;
+	public $laps_ss;
+	public $stamp_vel;
+
+	public $zvc1_mintime;
+	public $zvc1_maxspeed;
+	public $zvc1_continuos;
+	public $zvc1_continuos_penalty;
+
+	public $zvc2_mintime;
+	public $zvc2_maxspeed;
+	public $zvc2_continuos;
+	public $zvc2_continuos_penalty;
+
+	public $zvc3_mintime;
+	public $zvc3_maxspeed;
+	public $zvc3_continuos;
+	public $zvc3_continuos_penalty;
+
+	public $zvc4_mintime;
+	public $zvc4_maxspeed;
+	public $zvc4_continuos;
+	public $zvc4_continuos_penalty;
 	
 	#endregion
 	
@@ -119,24 +146,7 @@ class snaptrac{
 	 */
 	public $relatorio_geral_pontos;
 	public $relatorio_exportar_chronosat;	
-	public $current_ss;
-	public $lost_wp_penalty;
-	public $lost_stamp_penalty;
-	public $maxspeed_occ_penalty;
-	public $laps_ss;
-	public $stamp_vel;
-	public $zvc1_mintime;
-	public $zvc1_mintime_penalty;
-	public $zvc1_continuos;
-	public $zvc1_continuos_penalty;
-	public $zvc2_mintime;
-	public $zvc2_mintime_penalty;
-	public $zvc2_continuos;
-	public $zvc2_continuos_penalty;
-	public $zvc3_mintime;
-	public $zvc3_mintime_penalty;
-	public $zvc3_continuos;
-	public $zvc3_continuos_penalty;
+	
 
 	#endregion
 
@@ -197,18 +207,26 @@ class snaptrac{
 		$this->maxspeed_occ_penalty = $st['Parametros']['maxspeed_occ_penalty'];
 		$this->laps_ss = $st['Parametros']['laps_ss'];
 		$this->stamp_vel = $st['Parametros']['stamp_vel'];
+
 		$this->zvc1_mintime = $st['Parametros']['zvc1_mintime'];
-		$this->zvc1_mintime_penalty = $st['Parametros']['zvc1_mintime_penalty'];
+		$this->zvc1_maxspeed = $st['Parametros']['zvc1_maxspeed'];
 		$this->zvc1_continuos = $st['Parametros']['zvc1_continuos'];
 		$this->zvc1_continuos_penalty = $st['Parametros']['zvc1_continuos_penalty'];
+
 		$this->zvc2_mintime = $st['Parametros']['zvc2_mintime'];
-		$this->zvc2_mintime_penalty = $st['Parametros']['zvc2_mintime_penalty'];
+		$this->zvc2_maxspeed = $st['Parametros']['zvc2_maxspeed'];
 		$this->zvc2_continuos = $st['Parametros']['zvc2_continuos'];
 		$this->zvc2_continuos_penalty = $st['Parametros']['zvc2_continuos_penalty'];
+		
 		$this->zvc3_mintime = $st['Parametros']['zvc3_mintime'];
-		$this->zvc3_mintime_penalty = $st['Parametros']['zvc3_mintime_penalty'];
+		$this->zvc3_maxspeed = $st['Parametros']['zvc3_maxspeed'];
 		$this->zvc3_continuos = $st['Parametros']['zvc3_continuos'];
 		$this->zvc3_continuos_penalty = $st['Parametros']['zvc3_continuos_penalty'];
+		
+		$this->zvc4_mintime = $st['Parametros']['zvc4_mintime'];
+		$this->zvc4_maxspeed = $st['Parametros']['zvc4_maxspeed'];
+		$this->zvc4_continuos = $st['Parametros']['zvc4_continuos'];
+		$this->zvc4_continuos_penalty = $st['Parametros']['zvc4_continuos_penalty'];
 
 	}
 
@@ -315,11 +333,11 @@ class snaptrac{
 					}
 					$vel = ($vel > 0) ? $vel : 0;
 					$this->trac[$folder][$hora]['velocidade'] = $vel;
-					if ($vel > $this->velmax){	
+					/*if ($vel > $this->velmax){	
 						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'SIM';
 					} else{
 						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'NAO';
-					}
+					}*/
 					
 					$arr_step = $this->trac[$folder][$hora];
 					
@@ -432,7 +450,11 @@ class snaptrac{
 					foreach ($snap['zone'] AS $keyZone => $oco){
 						$tmp_oco = explode("|",$oco);
 						$vel = $tmp_oco[1];
-						if ($vel >= $this->velmax){
+						if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
+						if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
+						if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
+						if ($keyEntrada == 3) $maxspeed = $this->zvc4_maxspeed;
+						if ($vel >= $maxspeed){
 							$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar'][] = $oco;
 						}
 					}
@@ -441,7 +463,6 @@ class snaptrac{
 		}
 	}
 	
-
 	/**  Retorna ponto mais próximo de uma lista para uma referência
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
@@ -465,7 +486,6 @@ class snaptrac{
 		}
 		
 		return $retorno;
-		
 	}
 	
 	/**  Agrupa pontos dentro de um mesmo intervalo
@@ -499,13 +519,12 @@ class snaptrac{
 		//echo ")<br><br><br><br>";
 		return $group;
 	}
-	
-	
+		
 	/** Lê pasta dos arquivos dos competidores
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 04/07/2014
-	*/
+	 */
 	public function getFiles(){
 		if ($handle = opendir($this->import_path)) {
 			while (false !== ($file = readdir($handle))) {
@@ -521,7 +540,7 @@ class snaptrac{
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 04/07/2014
-	*/
+	 */
 	public function reportFile($file,$tipo='radar'){
 		
 		$folder = str_replace(".", "_", $file);
@@ -619,17 +638,17 @@ class snaptrac{
 
 						if($tipo_key=='W' && count($point['snap']) == 0){
 							$key_point_txt = $point['descricao'];
-							$arr_linha[intval($folder)]['PT']['Penalidade por perda de Waypoint - '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
+							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
 						}
 
 						if($tipo_key=='CB' && (count($point['snap']) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
 							$key_point_txt = $point['descricao'];
-							$arr_linha[intval($folder)]['PT']['Penalidade por perda de Carimbo - '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
+							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
 						}
 
-						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar']) > 0){
+						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar']) > 1){
 							$key_point_txt = $point['descricao'];
-							$arr_linha[intval($folder)]['PT']['Penalidade por ultrapassar velocidade máxima na Zona iniciada em '.$key_point_txt][] = array("hora"=>$this->maxspeed_occ_penalty);
+							$arr_linha[intval($folder)]['PT']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$this->maxspeed_occ_penalty);
 						}
 
 						foreach($point['snap'] AS $key_snap => $snap){
@@ -708,5 +727,4 @@ class snaptrac{
 	}
 
 	#endregion
-
 }
