@@ -456,7 +456,7 @@ class snaptrac{
 	private function radarProcess($folder){	
 		
 		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
-			if(is_array($point['snap'][$folder])){
+			if(is_array($entrada['snap'][$folder])){
 				foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
 					if(is_array($snap['zone'])){
 						foreach ($snap['zone'] AS $keyZone => $vel){						
@@ -657,28 +657,28 @@ class snaptrac{
 						// ---------------------------------------------------------------
 
 						if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
-							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
+							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
 						}
 
 						// ---------------------------------------------------------------
 
 						if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
-							$arr_linha[intval($folder)]['PT']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
+							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
 						}
 
 						// Radares -------------------------------------------------------
 						$radar_penalty = '';
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
-							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $this->radar1_penalty);						
+							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $this->radar1_penalty);	
 						}
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
 							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $this->radar2_penalty);
 						}
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
-							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $this->radar3_penalty);					
+							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $this->radar3_penalty);	
 						}
 						if(strlen($radar_penalty) > 0){
-							$arr_linha[intval($folder)]['PT']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$radar_penalty);
+							$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$radar_penalty);
 						}
 						// Radares -------------------------------------------------------
 
@@ -708,11 +708,13 @@ class snaptrac{
 
 						//$diff_x3 = $key_point;
 						
-						if($tipo_key=='IR' && $diff_x3 > 0){
-							$arr_linha[intval($folder)]['PT']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x3));					
-						}
-						elseif($tipo_key=='IR' && $diff_x2 > 0){
-							$arr_linha[intval($folder)]['PT']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x2));					
+						if($tempo > 0){
+							if($tipo_key=='IR' && $diff_x3 > 0){
+								$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x3));					
+							}
+							elseif($tipo_key=='IR' && $diff_x2 > 0){
+								$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x2));					
+							}
 						}
 						// Tempo ---------------------------------------------------------
 
@@ -733,6 +735,7 @@ class snaptrac{
 								if($num_volta==0){
 
 									//$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
+									$obs = ($tipo_key != 'P') ? " - Velocidade: ".$volta['velocidade']."km/h" : "";
 
 									$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
 										,$veiculo
