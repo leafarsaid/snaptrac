@@ -280,7 +280,7 @@ class snaptrac{
 	
 	public function process(){
 		try{
-			printf("Obtendo pontos do arquivo ".$this->arq_pontos."...\r\n");
+			printf("Obtendo pontos do arquivo ".$this->arq_pontos.". . .\r\n");
 			$this->getPoints();
 			$this->tracProcess();			
 		} catch(Exception $e){
@@ -300,7 +300,7 @@ class snaptrac{
 	
 		foreach ($this->arq_trac AS $file){		
 
-			printf("Processando arquivo ".$file."...\r\n");
+			printf("Processando arquivo ".$file.". . .\r\n");
 			
 			//$this->points = array();
 			//$this->trac = array();
@@ -703,17 +703,19 @@ class snaptrac{
 							$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
 						}
 
-						$diff_x2 = ($tempo_x2 - $tempo) * 2;
-						$diff_x3 = ($tempo_x3 - $tempo) * 3;
+						$diff_x2 = ($tempo_x2 - $tempo);
+						$diff_x3 = ($tempo_x3 - $tempo);
 
 						//$diff_x3 = $key_point;
 						
 						if($tempo > 0){
 							if($tipo_key=='IR' && $diff_x3 > 0){
-								$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x3));					
+								$pen_x3 = $diff_x2 * 3;
+								$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
 							}
 							elseif($tipo_key=='IR' && $diff_x2 > 0){
-								$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $diff_x2));					
+								$pen_x2 = $diff_x2 * 2;
+								$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
 							}
 						}
 						// Tempo ---------------------------------------------------------
