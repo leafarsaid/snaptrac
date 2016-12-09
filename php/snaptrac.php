@@ -663,22 +663,43 @@ class snaptrac{
 						// ---------------------------------------------------------------
 
 						if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
-							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_stamp_penalty);
+							if(count($point['snap'][$folder]) > 0){
+								$obs = ' - Velocidade: '.$point['snap'][$folder][0]['velocidade'].'km/h';
+							}
+							else{
+								$obs = '';
+							}
+							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt.$obs][] = array("hora"=>$this->lost_stamp_penalty);
 						}
 
 						// Radares -------------------------------------------------------
 						$radar_penalty = '';
+						if($key_point == 0){
+							$velmax = $this->zvc1_maxspeed;
+						}
+						if($key_point == 1){
+							$velmax = $this->zvc2_maxspeed;
+						}
+						if($key_point == 2){
+							$velmax = $this->zvc3_maxspeed;
+						}
+						if($key_point == 3){
+							$velmax = $this->zvc4_maxspeed;
+						}
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
-							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $this->radar1_penalty);	
+							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $velmax);
+							$radar_penalty = $this->radar1_penalty;	
 						}
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
-							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $this->radar2_penalty);
+							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $velmax);
+							$radar_penalty = $this->radar2_penalty;
 						}
 						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
-							$radar_penalty = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $this->radar3_penalty);	
+							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $velmax);
+							$radar_penalty = $this->radar3_penalty;
 						}
-						if(strlen($radar_penalty) > 0){
-							$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt][] = array("hora"=>$radar_penalty);
+						if($tipo_key=='IR' && $gratervel > 0){
+							$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h'][] = array("hora"=>$radar_penalty);
 						}
 						// Radares -------------------------------------------------------
 
@@ -796,32 +817,37 @@ class snaptrac{
 	}
 
 	/** Penaliza no radar */
-	public function penalizaRadar($arr_radar, $radar_penalty_value){
+	public function penalizaRadar($arr_radar, $velmax){
 										
 		$idx_anterior = 0;
 		$continuo = 0;
+		$gratervel = 0;
 
 		foreach ($arr_radar AS $idx => $vel){
 
-			if ($idx_anterior > 0 && (($idx-$idx_anterior) == 1) ){
-				$continuo++;
-			}
-			elseif($continuo < $this->sec_continuous){
-				//falhando volta a zero caso já não tenha encontrado ocorrencia de continuidade
-				$continuo = 0;
-			}
+			if ($vel > $velmax){
 
-			$idx_anterior = $idx;
+				if ($idx_anterior > 0 && (($idx-$idx_anterior) == 1) ){
+					$continuo++;
+				}
+				elseif($continuo < $this->sec_continuous){
+					//falhando volta a zero caso já não tenha encontrado ocorrencia de continuidade
+					$continuo = 0;
+				}
+
+				$idx_anterior = $idx;
+
+				if ($gratervel < $vel){
+					$gratervel = $vel;
+				}
+			}
 		}	
 
-		if ($continuo >= $this->sec_continuous){
-			$radar_penalty = $radar_penalty_value;
-		}
-		else{
-			$radar_penalty = '';
+		if ($continuo < $this->sec_continuous){			
+			$gratervel = 0;
 		}
 		
-		return $radar_penalty;
+		return $gratervel;
 	}
 
 	#endregion
