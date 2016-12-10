@@ -315,45 +315,47 @@ class snaptrac{
 				$previousKey = 0;
 				//acumulador de distância
 				$dist_acum = 0;
-				
-				foreach($xml->trk->trkseg->trkpt AS $trkpt){
-					//Pega todas as informações de cada ponto da trilha
-					$hora = $this->functions->toSec(substr($trkpt->time,-9,8));
-					
-					$this->trac[$folder][$hora]['indice'] = $hora;
-					$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
-					$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
-					$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
-					$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,-9,8)) + $this->fuso));  	
-					$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
-					//distancia em km
-					if ($previousKey > 0){
-						$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$folder][$previousKey],$this->trac[$folder][$hora]);
-					} else{
-						$this->trac[$folder][$hora]['distancia'] = floatval(0);
+
+				foreach($xml->trk AS $trk){			
+					foreach($trk->trkseg->trkpt AS $trkpt){
+						//Pega todas as informações de cada ponto da trilha
+						$hora = $this->functions->toSec(substr($trkpt->time,-9,8));
+						
+						$this->trac[$folder][$hora]['indice'] = $hora;
+						$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
+						$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
+						$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
+						$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,-9,8)) + $this->fuso));  	
+						$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
+						//distancia em km
+						if ($previousKey > 0){
+							$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$folder][$previousKey],$this->trac[$folder][$hora]);
+						} else{
+							$this->trac[$folder][$hora]['distancia'] = floatval(0);
+						}
+						$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
+						$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
+						if($hora > $previousKey){
+							$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+						}
+						$vel = ($vel > 0) ? $vel : 0;
+						$this->trac[$folder][$hora]['velocidade'] = $vel;
+						/*if ($vel > $this->velmax){	
+							$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'SIM';
+						} else{
+							$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'NAO';
+						}*/
+						
+						$arr_step = $this->trac[$folder][$hora];
+						
+						//steps
+						if ($dist_acum >= $this->steps_length){			
+							$this->steps[$hora] = $arr_step;
+							$dist_acum = 0;
+						}
+						
+						$previousKey = $hora;
 					}
-					$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
-					$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
-					if($hora > $previousKey){
-						$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
-					}
-					$vel = ($vel > 0) ? $vel : 0;
-					$this->trac[$folder][$hora]['velocidade'] = $vel;
-					/*if ($vel > $this->velmax){	
-						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'SIM';
-					} else{
-						$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'NAO';
-					}*/
-					
-					$arr_step = $this->trac[$folder][$hora];
-					
-					//steps
-					if ($dist_acum >= $this->steps_length){			
-						$this->steps[$hora] = $arr_step;
-						$dist_acum = 0;
-					}
-					
-					$previousKey = $hora;
 				}			
 				rename($this->import_path."/".$file, $this->processed_path."/".$file);
 			}
