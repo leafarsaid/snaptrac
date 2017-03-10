@@ -246,7 +246,7 @@ class snaptrac{
 			
 		$array_data = array();
 		
-		if (($handle = fopen($this->arq_pontos, "r")) !== FALSE) {
+		/*if (($handle = fopen($this->arq_pontos, "r")) !== FALSE) {
 			while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
 				$pointer = trim($data[0]);
 				$coords = $data[2];
@@ -271,8 +271,30 @@ class snaptrac{
 				}
 
 				$array_data[$tipo_pto][] = $pto;
-			}
+			}			
 			fclose($handle);
+		}*/
+
+		$xml = simplexml_load_file($this->arq_pontos);
+		foreach($xml->trk AS $trk){
+			foreach($trk->trkseg->trkpt AS $trkpt){
+
+				$pto = array();
+				
+				$pto['latitude'] = floatval($trkpt['lat']);
+				$pto['longitude'] = floatval($trkpt['lon']);
+				$pto['descricao'] = $trkpt->desc;
+				$pto['snap'] = array();
+
+				$tipo_pto = 'nada';				
+				foreach ($this->arr_tipo AS $tipo_pto_key => $tipo_pto_val){
+					if ($trkpt->name === $tipo_pto_key){
+						$tipo_pto = $tipo_pto_val;
+					}
+				}
+
+				$array_data[$tipo_pto][] = $pto;
+			}
 		}
 		
 		$this->points_ini = $this->points = $array_data;
