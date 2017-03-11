@@ -276,25 +276,23 @@ class snaptrac{
 		}*/
 
 		$xml = simplexml_load_file($this->arq_pontos);
-		foreach($xml->trk AS $trk){
-			foreach($trk->trkseg->trkpt AS $trkpt){
+		foreach($xml->wpt AS $wpt){
 
-				$pto = array();
-				
-				$pto['latitude'] = floatval($trkpt['lat']);
-				$pto['longitude'] = floatval($trkpt['lon']);
-				$pto['descricao'] = $trkpt->desc;
-				$pto['snap'] = array();
+			$pto = array();
+			
+			$pto['latitude'] = floatval($wpt['lat']);
+			$pto['longitude'] = floatval($wpt['lon']);
+			$pto['descricao'] = strip_tags($wpt->desc->asXml());
+			$pto['snap'] = array();
 
-				$tipo_pto = 'nada';				
-				foreach ($this->arr_tipo AS $tipo_pto_key => $tipo_pto_val){
-					if ($trkpt->name === $tipo_pto_key){
-						$tipo_pto = $tipo_pto_val;
-					}
+			$tipo_pto = 'nada';				
+			foreach ($this->arr_tipo AS $tipo_pto_key => $tipo_pto_val){
+				if (strip_tags($wpt->name->asXml()) === $tipo_pto_key){
+					$tipo_pto = $tipo_pto_val;
 				}
-
-				$array_data[$tipo_pto][] = $pto;
 			}
+
+			$array_data[$tipo_pto][] = $pto;
 		}
 		
 		$this->points_ini = $this->points = $array_data;
@@ -793,6 +791,27 @@ class snaptrac{
 									);
 
 									$string .= $string_tmp;
+
+									$link1 = mysql_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002');
+									$link2 = mysql_connect('mysql03.chronosat.com.br', 'chronosat2', 'chrono2002');
+									$link3 = mysql_connect('mysql04.chronosat.com.br', 'chronosat3', 'chrono2002');
+
+									$tempo_valor = $volta['hora'];
+
+									$parte_decimal = end(explode('.', $tempo_valor));
+									$parte_decimal = str_pad($parte_decimal, 2, '0', STR_PAD_RIGHT);
+									$parte_decimal = $parte_decimal*1;
+									$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
+
+									$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$this->current_ss.", '$tipo_key'), $veiculo, ".$this->current_ss.", 'snaptrac')";
+
+									$result1 = mysql_query($sql,$link1);
+									$result2 = mysql_query($sql,$link2);
+									$result3 = mysql_query($sql,$link3);
+
+									mysql_close($link1);
+									mysql_close($link2);
+									mysql_close($link3);
 
 									if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
 										$string_aux .= $string_tmp;

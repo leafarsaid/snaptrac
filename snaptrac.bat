@@ -7,5 +7,5 @@ echo #                 S N A P T R A C                    #
 echo #                                                    #
 echo ######################################################
 echo.
-..\..\php5\php.exe snaptrac.php
+c:\ws\php5\php.exe snaptrac.php
 pause
