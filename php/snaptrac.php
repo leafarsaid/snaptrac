@@ -84,6 +84,8 @@ class snaptrac{
 	public $zvc4_mintime_x2;
 	public $zvc4_mintime_x3;
 	public $zvc4_maxspeed;
+
+	public $link;
 	
 	#endregion
 	
@@ -233,6 +235,7 @@ class snaptrac{
 		$this->zvc4_mintime_x2 = $st['Parametros']['zvc4_mintime_x2'];
 		$this->zvc4_mintime_x3 = $st['Parametros']['zvc4_mintime_x3'];
 		$this->zvc4_maxspeed = $st['Parametros']['zvc4_maxspeed'];
+		$this->link = mysqli_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002', 'chronosat1');
 
 	}
 
@@ -302,9 +305,11 @@ class snaptrac{
 		try{
 			printf("Obtendo pontos do arquivo ".$this->arq_pontos.". . .\r\n");
 			$this->getPoints();
-			$this->tracProcess();			
+			$this->tracProcess();	
+			mysqli_close($this->link);
 		} catch(Exception $e){
 			echo $e->getMessage();
+			mysqli_close($this->link);
 		}
 	}
 	
@@ -403,40 +408,43 @@ class snaptrac{
 	private function pointProcess($folder){
 		
 		foreach($this->arr_tipo AS $tipo){
-			
-			foreach ($this->points[$tipo] AS $key => $point){
-				
-				//pegando todos os pontos que passam perto
-				foreach ($this->trac[$folder] AS $ptTrac){
-					$distancia = $this->functions->distancia($ptTrac,$point);
-					if ($distancia <= ($this->gate/1000)){
-						$this->points[$tipo][$key]['snap'][$folder][] = $ptTrac;						
-					}
-				}
-				
-				//filtrando pontos
-				if (isset($this->points[$tipo][$key]['snap'][$folder])){
-					$laps = $this->group($this->points[$tipo][$key]['snap'][$folder],300);
-					//echo(count($laps));
-					
-					//limpando array
-					$this->points[$tipo][$key]['snap'][$folder] = array();
-					
-					foreach($laps AS $lap){
-						$ponto_mais_proximo = $this->nearest($point, $lap);	
-						
-						//se for waypoint, retira se for passagem por outro waypoint
-						//$outro_waypoint = false;
-						
-						//if(!($tipo == 'waypoints' && $outro_waypoint)){
-							$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
-						//}
-					}
 
-					/*if($tipo=='waypoints' && $key===0){
-						var_dump($this->points[$tipo][$key]['snap'][$folder]);
-						echo('----------------------------------------------------------------------------------');
-					}*/
+			if (isset($this->points[$tipo])){
+			
+				foreach ($this->points[$tipo] AS $key => $point){
+					
+					//pegando todos os pontos que passam perto
+					foreach ($this->trac[$folder] AS $ptTrac){
+						$distancia = $this->functions->distancia($ptTrac,$point);
+						if ($distancia <= ($this->gate/1000)){
+							$this->points[$tipo][$key]['snap'][$folder][] = $ptTrac;						
+						}
+					}
+					
+					//filtrando pontos
+					if (isset($this->points[$tipo][$key]['snap'][$folder])){
+						$laps = $this->group($this->points[$tipo][$key]['snap'][$folder],300);
+						//echo(count($laps));
+						
+						//limpando array
+						$this->points[$tipo][$key]['snap'][$folder] = array();
+						
+						foreach($laps AS $lap){
+							$ponto_mais_proximo = $this->nearest($point, $lap);	
+							
+							//se for waypoint, retira se for passagem por outro waypoint
+							//$outro_waypoint = false;
+							
+							//if(!($tipo == 'waypoints' && $outro_waypoint)){
+								$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
+							//}
+						}
+
+						/*if($tipo=='waypoints' && $key===0){
+							var_dump($this->points[$tipo][$key]['snap'][$folder]);
+							echo('----------------------------------------------------------------------------------');
+						}*/
+					}
 				}
 			}
 		}
@@ -792,28 +800,26 @@ class snaptrac{
 
 									$string .= $string_tmp;
 
-									$link1 = mysql_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002');
-									//$link2 = mysql_connect('mysql03.chronosat.com.br', 'chronosat2', 'chrono2002');
-									//$link3 = mysql_connect('mysql04.chronosat.com.br', 'chronosat3', 'chrono2002');
-
-									$tempo_valor = $volta['hora'];
-
-									$parte_decimal = end(explode('.', $tempo_valor));
-									$parte_decimal = str_pad($parte_decimal, 2, '0', STR_PAD_RIGHT);
-									$parte_decimal = $parte_decimal*1;
-									$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
-
-									$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$this->current_ss.", '$tipo_key'), $veiculo, ".$this->current_ss.", 'snaptrac')";
-
-									$result1 = mysql_query($sql,$link1);
-									//$result2 = mysql_query($sql,$link2);
-									//$result3 = mysql_query($sql,$link3);
-
-									mysql_close($link1);
-									//mysql_close($link2);
-									//mysql_close($link3);
-
 									if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
+
+										
+
+										$tempo_valor = $volta['hora'];
+
+										$parte_decimal = end(explode('.', $tempo_valor));
+										$parte_decimal = str_pad($parte_decimal, 2, '0', STR_PAD_RIGHT);
+										$parte_decimal = $parte_decimal*1;
+										$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
+
+										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', 'E', $veiculo, ".$this->current_ss.", '".$point_key.$obs."','SNAPTRAC')";
+
+										$result = $this->link->query($sql);
+
+										//var_dump($result);
+
+										//print_r("\r\n\r\n");
+
+										//
 										$string_aux .= $string_tmp;
 									}
 								}
