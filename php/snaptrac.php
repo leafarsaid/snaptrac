@@ -793,8 +793,8 @@ class snaptrac{
 									$string .= $string_tmp;
 
 									$link1 = mysql_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002');
-									$link2 = mysql_connect('mysql03.chronosat.com.br', 'chronosat2', 'chrono2002');
-									$link3 = mysql_connect('mysql04.chronosat.com.br', 'chronosat3', 'chrono2002');
+									//$link2 = mysql_connect('mysql03.chronosat.com.br', 'chronosat2', 'chrono2002');
+									//$link3 = mysql_connect('mysql04.chronosat.com.br', 'chronosat3', 'chrono2002');
 
 									$tempo_valor = $volta['hora'];
 
@@ -806,12 +806,12 @@ class snaptrac{
 									$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$this->current_ss.", '$tipo_key'), $veiculo, ".$this->current_ss.", 'snaptrac')";
 
 									$result1 = mysql_query($sql,$link1);
-									$result2 = mysql_query($sql,$link2);
-									$result3 = mysql_query($sql,$link3);
+									//$result2 = mysql_query($sql,$link2);
+									//$result3 = mysql_query($sql,$link3);
 
 									mysql_close($link1);
-									mysql_close($link2);
-									mysql_close($link3);
+									//mysql_close($link2);
+									//mysql_close($link3);
 
 									if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
 										$string_aux .= $string_tmp;
