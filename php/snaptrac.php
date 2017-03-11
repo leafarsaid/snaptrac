@@ -681,99 +681,101 @@ class snaptrac{
 				$string_aux = "";
 				$arr_linha = array();
 				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
-					foreach ($this->points[$tipo_desc] AS $key_point => $point){
-						$key_point_txt = $point['descricao'];
+					if (isset($this->points[$tipo_desc])){
+						foreach ($this->points[$tipo_desc] AS $key_point => $point){
+							$key_point_txt = $point['descricao'];
 
-						// ---------------------------------------------------------------
+							// ---------------------------------------------------------------
 
-						if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
-							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
-						}
-
-						// ---------------------------------------------------------------
-
-						if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
-							if(count($point['snap'][$folder]) > 0){
-								$obs = ' - Velocidade: '.$point['snap'][$folder][0]['velocidade'].'km/h';
+							if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
+								$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
 							}
-							else{
-								$obs = '';
+
+							// ---------------------------------------------------------------
+
+							if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
+								if(count($point['snap'][$folder]) > 0){
+									$obs = ' - Velocidade: '.$point['snap'][$folder][0]['velocidade'].'km/h';
+								}
+								else{
+									$obs = '';
+								}
+								$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt.$obs][] = array("hora"=>$this->lost_stamp_penalty);
 							}
-							$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt.$obs][] = array("hora"=>$this->lost_stamp_penalty);
-						}
 
-						// Radares -------------------------------------------------------
-						$radar_penalty = '';
-						if($key_point == 0){
-							$velmax = $this->zvc1_maxspeed;
-						}
-						if($key_point == 1){
-							$velmax = $this->zvc2_maxspeed;
-						}
-						if($key_point == 2){
-							$velmax = $this->zvc3_maxspeed;
-						}
-						if($key_point == 3){
-							$velmax = $this->zvc4_maxspeed;
-						}
-						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
-							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $velmax);
-							$radar_penalty = $this->radar1_penalty;	
-						}
-						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
-							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $velmax);
-							$radar_penalty = $this->radar2_penalty;
-						}
-						if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
-							$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $velmax);
-							$radar_penalty = $this->radar3_penalty;
-						}
-						if($tipo_key=='IR' && $gratervel > 0){
-							$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h'][] = array("hora"=>$radar_penalty);
-						}
-						// Radares -------------------------------------------------------
-
-						// ---------------------------------------------------------------
-
-						// Tempo ---------------------------------------------------------
-						$tempo = $point['snap'][$folder][0]['zone']['tempo'];
-						if($key_point == 0){
-							$tempo_x2 = $this->functions->toSec($this->zvc1_mintime_x2);
-							$tempo_x3 = $this->functions->toSec($this->zvc1_mintime_x3);
-						}
-						if($key_point == 1){
-							$tempo_x2 = $this->functions->toSec($this->zvc2_mintime_x2);
-							$tempo_x3 = $this->functions->toSec($this->zvc2_mintime_x3);
-						}
-						if($key_point == 2){
-							$tempo_x2 = $this->functions->toSec($this->zvc3_mintime_x2);
-							$tempo_x3 = $this->functions->toSec($this->zvc3_mintime_x3);
-						}
-						if($key_point == 3){
-							$tempo_x2 = $this->functions->toSec($this->zvc4_mintime_x2);
-							$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
-						}
-
-						$diff_x2 = ($tempo_x2 - $tempo);
-						$diff_x3 = ($tempo_x3 - $tempo);
-
-						//$diff_x3 = $key_point;
-						
-						if($tempo > 0){
-							if($tipo_key=='IR' && $diff_x3 > 0){
-								$pen_x3 = $diff_x2 * 3;
-								$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
+							// Radares -------------------------------------------------------
+							$radar_penalty = '';
+							if($key_point == 0){
+								$velmax = $this->zvc1_maxspeed;
 							}
-							elseif($tipo_key=='IR' && $diff_x2 > 0){
-								$pen_x2 = $diff_x2 * 2;
-								$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
+							if($key_point == 1){
+								$velmax = $this->zvc2_maxspeed;
 							}
-						}
-						// Tempo ---------------------------------------------------------
+							if($key_point == 2){
+								$velmax = $this->zvc3_maxspeed;
+							}
+							if($key_point == 3){
+								$velmax = $this->zvc4_maxspeed;
+							}
+							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
+								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $velmax);
+								$radar_penalty = $this->radar1_penalty;	
+							}
+							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
+								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $velmax);
+								$radar_penalty = $this->radar2_penalty;
+							}
+							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
+								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $velmax);
+								$radar_penalty = $this->radar3_penalty;
+							}
+							if($tipo_key=='IR' && $gratervel > 0){
+								$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h'][] = array("hora"=>$radar_penalty);
+							}
+							// Radares -------------------------------------------------------
 
-						foreach($point['snap'] AS $key_snap => $snap){
-							foreach($snap AS $volta => $detalhes){
-								$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;	
+							// ---------------------------------------------------------------
+
+							// Tempo ---------------------------------------------------------
+							$tempo = $point['snap'][$folder][0]['zone']['tempo'];
+							if($key_point == 0){
+								$tempo_x2 = $this->functions->toSec($this->zvc1_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc1_mintime_x3);
+							}
+							if($key_point == 1){
+								$tempo_x2 = $this->functions->toSec($this->zvc2_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc2_mintime_x3);
+							}
+							if($key_point == 2){
+								$tempo_x2 = $this->functions->toSec($this->zvc3_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc3_mintime_x3);
+							}
+							if($key_point == 3){
+								$tempo_x2 = $this->functions->toSec($this->zvc4_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
+							}
+
+							$diff_x2 = ($tempo_x2 - $tempo);
+							$diff_x3 = ($tempo_x3 - $tempo);
+
+							//$diff_x3 = $key_point;
+							
+							if($tempo > 0){
+								if($tipo_key=='IR' && $diff_x3 > 0){
+									$pen_x3 = $diff_x2 * 3;
+									$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
+								}
+								elseif($tipo_key=='IR' && $diff_x2 > 0){
+									$pen_x2 = $diff_x2 * 2;
+									$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
+								}
+							}
+							// Tempo ---------------------------------------------------------
+
+							foreach($point['snap'] AS $key_snap => $snap){
+								foreach($snap AS $volta => $detalhes){
+									$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;	
+								}
 							}
 						}
 					}
