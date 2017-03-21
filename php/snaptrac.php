@@ -680,6 +680,7 @@ class snaptrac{
 				$string = sprintf("Veículo;SS;Tipo de tempo;Horário;Obs\r\n");
 				$string_aux = "";
 				$arr_linha = array();
+				$falt_report = "";
 				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
 					if (isset($this->points[$tipo_desc])){
 						foreach ($this->points[$tipo_desc] AS $key_point => $point){
@@ -688,7 +689,9 @@ class snaptrac{
 							// ---------------------------------------------------------------
 
 							if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
-								$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt][] = array("hora"=>$this->lost_wp_penalty);
+								$falt_desc = 'Perda: '.$key_point_txt;
+								$falt_report .= sprintf("%s\r\n",$falt_desc);
+								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$this->lost_wp_penalty);
 							}
 
 							// ---------------------------------------------------------------
@@ -700,7 +703,9 @@ class snaptrac{
 								else{
 									$obs = '';
 								}
-								$arr_linha[intval($folder)]['P']['Perda: '.$key_point_txt.$obs][] = array("hora"=>$this->lost_stamp_penalty);
+								$falt_desc = 'Perda: '.$key_point_txt.$obs;
+								$falt_report .= sprintf("%s\r\n",$falt_desc);
+								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$this->lost_stamp_penalty);
 							}
 
 							// Radares -------------------------------------------------------
@@ -730,7 +735,9 @@ class snaptrac{
 								$radar_penalty = $this->radar3_penalty;
 							}
 							if($tipo_key=='IR' && $gratervel > 0){
-								$arr_linha[intval($folder)]['P']['Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h'][] = array("hora"=>$radar_penalty);
+								$falt_desc = 'Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h';
+								$falt_report .= sprintf("%s\r\n",$falt_desc);
+								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$radar_penalty);
 							}
 							// Radares -------------------------------------------------------
 
@@ -763,11 +770,15 @@ class snaptrac{
 							if($tempo > 0){
 								if($tipo_key=='IR' && $diff_x3 > 0){
 									$pen_x3 = $diff_x2 * 3;
-									$arr_linha[intval($folder)]['P']['Tempo abaixo (x3): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
+									$falt_desc = 'Tempo abaixo (x3): '.$key_point_txt;
+									$falt_report .= sprintf("%s\r\n",$falt_desc);
+									$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
 								}
 								elseif($tipo_key=='IR' && $diff_x2 > 0){
 									$pen_x2 = $diff_x2 * 2;
-									$arr_linha[intval($folder)]['P']['Tempo abaixo (x2): '.$key_point_txt][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
+									$falt_desc = 'Tempo abaixo (x2): '.$key_point_txt;
+									$falt_report .= sprintf("%s\r\n",$falt_desc);
+									$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
 								}
 							}
 							// Tempo ---------------------------------------------------------
@@ -802,7 +813,7 @@ class snaptrac{
 
 									$string .= $string_tmp;
 
-									if( in_array($tipo_key, array("L","LT","C","CT","I1","I2","I3","I4","P","PT")) ){
+									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4")) ){
 
 										
 
@@ -813,7 +824,7 @@ class snaptrac{
 										$parte_decimal = $parte_decimal*1;
 										$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
 
-										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', 'E', $veiculo, ".$this->current_ss.", '".$point_key.$obs."','SNAPTRAC')";
+										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$this->current_ss.", '$tipo_key'), $veiculo, ".$this->current_ss.", '".$point_key.$obs."','SNAPTRAC')";
 
 										$result = $this->link->query($sql);
 
@@ -844,6 +855,19 @@ class snaptrac{
 				
 				//$string .= $string_aux;
 				$this->relatorio_exportar_chronosat .= $string_aux;
+
+				if(strlen($falt_report)){
+					printf("***********************************\r\n");
+
+					printf("*                                 *\r\n");
+
+					printf("*           P E N A I S           *\r\n");
+
+					printf("*                                 *\r\n");
+
+					printf("***********************************\r\n");
+					echo $falt_report;
+				}
 						
 			} 
 			elseif ($tipo=='exportar_chronosat'){
