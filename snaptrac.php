@@ -1,5 +1,5 @@
 <?php
-ini_set('memory_limit', '16000M');
+ini_set('memory_limit', '128000M');
 set_time_limit (0);
 include_once 'php/snaptrac.php';
 include_once 'php/functions.php';

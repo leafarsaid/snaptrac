@@ -86,6 +86,10 @@ class snaptrac{
 	public $zvc4_maxspeed;
 
 	public $link;
+
+	//public $pontos_radar1;
+	//public $pontos_radar2;
+	//public $pontos_radar3;
 	
 	#endregion
 	
@@ -484,6 +488,10 @@ class snaptrac{
 	 * @version 06/12/2016
 	 */
 	private function radarProcess($folder){	
+
+		//$this->pontos_radar1 = array();
+		//$this->pontos_radar2 = array();
+		//$this->pontos_radar3 = array();
 		
 		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
 			if(is_array($entrada['snap'][$folder])){
@@ -798,14 +806,16 @@ class snaptrac{
 							foreach($voltas AS $num_volta => $volta){
 
 								//descartar outras voltas
-								if($num_volta==0){
+								//if($num_volta==0){
 
 									//$obs = ($tipo_key != 'PT') ? " - Ocorrência: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
 									$obs = ($tipo_key != 'P') ? " - Velocidade: ".$volta['velocidade']."km/h" : "";
 
+									$especial = $this->current_ss + $num_volta;
+
 									$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
 										,$veiculo
-										,$this->current_ss
+										,$especial
 										,$tipo_key
 										,$volta['hora']
 										,$point_key.$obs
@@ -813,7 +823,7 @@ class snaptrac{
 
 									$string .= $string_tmp;
 
-									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4")) ){
+									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4","CT")) ){
 
 										
 
@@ -824,7 +834,7 @@ class snaptrac{
 										$parte_decimal = $parte_decimal*1;
 										$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
 
-										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$this->current_ss.", '$tipo_key'), $veiculo, ".$this->current_ss.", '".$point_key.$obs."','SNAPTRAC')";
+										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$especial.", '$tipo_key'), $veiculo, ".$especial.", '".$point_key.$obs."','SNAPTRAC')";
 
 										$result = $this->link->query($sql);
 
@@ -835,7 +845,7 @@ class snaptrac{
 										//
 										$string_aux .= $string_tmp;
 									}
-								}
+								//}
 							}
 						}						
 					}					
