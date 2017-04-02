@@ -84,6 +84,50 @@ class snaptrac{
 	public $zvc4_mintime_x2;
 	public $zvc4_mintime_x3;
 	public $zvc4_maxspeed;
+	
+	public $zvc5_mintime_x2;
+	public $zvc5_mintime_x3;
+	public $zvc5_maxspeed;
+	
+	public $zvc6_mintime_x2;
+	public $zvc6_mintime_x3;
+	public $zvc6_maxspeed;
+	
+	public $zvc7_mintime_x2;
+	public $zvc7_mintime_x3;
+	public $zvc7_maxspeed;
+	
+	public $zvc8_mintime_x2;
+	public $zvc8_mintime_x3;
+	public $zvc8_maxspeed;
+	
+	public $zvc9_mintime_x2;
+	public $zvc9_mintime_x3;
+	public $zvc9_maxspeed;
+	
+	public $zvc10_mintime_x2;
+	public $zvc10_mintime_x3;
+	public $zvc10_maxspeed;
+	
+	public $zvc11_mintime_x2;
+	public $zvc11_mintime_x3;
+	public $zvc11_maxspeed;
+	
+	public $zvc12_mintime_x2;
+	public $zvc12_mintime_x3;
+	public $zvc12_maxspeed;
+	
+	public $zvc13_mintime_x2;
+	public $zvc13_mintime_x3;
+	public $zvc13_maxspeed;
+	
+	public $zvc14_mintime_x2;
+	public $zvc14_mintime_x3;
+	public $zvc14_maxspeed;
+	
+	public $zvc15_mintime_x2;
+	public $zvc15_mintime_x3;
+	public $zvc15_maxspeed;
 
 	public $link;
 
@@ -239,6 +283,51 @@ class snaptrac{
 		$this->zvc4_mintime_x2 = $st['Parametros']['zvc4_mintime_x2'];
 		$this->zvc4_mintime_x3 = $st['Parametros']['zvc4_mintime_x3'];
 		$this->zvc4_maxspeed = $st['Parametros']['zvc4_maxspeed'];
+		
+		$this->zvc5_mintime_x2 = $st['Parametros']['zvc5_mintime_x2'];
+		$this->zvc5_mintime_x3 = $st['Parametros']['zvc5_mintime_x3'];
+		$this->zvc5_maxspeed = $st['Parametros']['zvc5_maxspeed'];
+		
+		$this->zvc6_mintime_x2 = $st['Parametros']['zvc6_mintime_x2'];
+		$this->zvc6_mintime_x3 = $st['Parametros']['zvc6_mintime_x3'];
+		$this->zvc6_maxspeed = $st['Parametros']['zvc6_maxspeed'];
+		
+		$this->zvc7_mintime_x2 = $st['Parametros']['zvc7_mintime_x2'];
+		$this->zvc7_mintime_x3 = $st['Parametros']['zvc7_mintime_x3'];
+		$this->zvc7_maxspeed = $st['Parametros']['zvc7_maxspeed'];
+		
+		$this->zvc8_mintime_x2 = $st['Parametros']['zvc8_mintime_x2'];
+		$this->zvc8_mintime_x3 = $st['Parametros']['zvc8_mintime_x3'];
+		$this->zvc8_maxspeed = $st['Parametros']['zvc8_maxspeed'];
+		
+		$this->zvc9_mintime_x2 = $st['Parametros']['zvc9_mintime_x2'];
+		$this->zvc9_mintime_x3 = $st['Parametros']['zvc9_mintime_x3'];
+		$this->zvc9_maxspeed = $st['Parametros']['zvc9_maxspeed'];
+		
+		$this->zvc10_mintime_x2 = $st['Parametros']['zvc10_mintime_x2'];
+		$this->zvc10_mintime_x3 = $st['Parametros']['zvc10_mintime_x3'];
+		$this->zvc10_maxspeed = $st['Parametros']['zvc10_maxspeed'];
+		
+		$this->zvc11_mintime_x2 = $st['Parametros']['zvc11_mintime_x2'];
+		$this->zvc11_mintime_x3 = $st['Parametros']['zvc11_mintime_x3'];
+		$this->zvc11_maxspeed = $st['Parametros']['zvc11_maxspeed'];
+		
+		$this->zvc12_mintime_x2 = $st['Parametros']['zvc12_mintime_x2'];
+		$this->zvc12_mintime_x3 = $st['Parametros']['zvc12_mintime_x3'];
+		$this->zvc12_maxspeed = $st['Parametros']['zvc12_maxspeed'];
+		
+		$this->zvc13_mintime_x2 = $st['Parametros']['zvc13_mintime_x2'];
+		$this->zvc13_mintime_x3 = $st['Parametros']['zvc13_mintime_x3'];
+		$this->zvc13_maxspeed = $st['Parametros']['zvc13_maxspeed'];
+		
+		$this->zvc14_mintime_x2 = $st['Parametros']['zvc14_mintime_x2'];
+		$this->zvc14_mintime_x3 = $st['Parametros']['zvc14_mintime_x3'];
+		$this->zvc14_maxspeed = $st['Parametros']['zvc14_maxspeed'];
+		
+		$this->zvc15_mintime_x2 = $st['Parametros']['zvc15_mintime_x2'];
+		$this->zvc15_mintime_x3 = $st['Parametros']['zvc15_mintime_x3'];
+		$this->zvc15_maxspeed = $st['Parametros']['zvc15_maxspeed'];
+
 		$this->link = mysqli_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002', 'chronosat1');
 
 	}
@@ -687,6 +776,7 @@ class snaptrac{
 			
 			} 
 			elseif ($tipo=='exportar_chronosat_unitario'){
+				$string2 = $string;
 				$string = sprintf("Veículo;SS;Tipo de tempo;Horário;Obs\r\n");
 				$string_aux = "";
 				$arr_linha = array();
@@ -750,6 +840,24 @@ class snaptrac{
 								$falt_report .= sprintf("%s\r\n",$falt_desc);
 								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$radar_penalty);
 							}
+
+							$arr_radares = array('radar1','radar2','radar3');
+
+							/*foreach($point['snap'][$folder][0]['radar1'] AS $rd1){
+								$string2 .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,151,0,13\r\n"
+									,'Radar1'
+									,$rd1['latitude']
+									,$rd1['longitude']
+								);
+							}
+
+
+							$path2 = $this->report_path."/".$folder."/altas_velocidades.txt";
+							touch($path2);			
+							$handle2 = fopen($path2, "w");
+							fwrite($handle2, $string2);
+							fclose($handle2);*/
+
 							// Radares -------------------------------------------------------
 
 							// ---------------------------------------------------------------
@@ -771,6 +879,50 @@ class snaptrac{
 							if($key_point == 3){
 								$tempo_x2 = $this->functions->toSec($this->zvc4_mintime_x2);
 								$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
+							}
+							if($key_point == 4){
+								$tempo_x2 = $this->functions->toSec($this->zvc5_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc5_mintime_x3);
+							}
+							if($key_point == 5){
+								$tempo_x2 = $this->functions->toSec($this->zvc6_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc6_mintime_x3);
+							}
+							if($key_point == 6){
+								$tempo_x2 = $this->functions->toSec($this->zvc7_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc7_mintime_x3);
+							}
+							if($key_point == 7){
+								$tempo_x2 = $this->functions->toSec($this->zvc8_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc8_mintime_x3);
+							}
+							if($key_point == 8){
+								$tempo_x2 = $this->functions->toSec($this->zvc9_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc9_mintime_x3);
+							}
+							if($key_point == 9){
+								$tempo_x2 = $this->functions->toSec($this->zvc10_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc10_mintime_x3);
+							}
+							if($key_point == 10){
+								$tempo_x2 = $this->functions->toSec($this->zvc11_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc11_mintime_x3);
+							}
+							if($key_point == 11){
+								$tempo_x2 = $this->functions->toSec($this->zvc12_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc12_mintime_x3);
+							}
+							if($key_point == 12){
+								$tempo_x2 = $this->functions->toSec($this->zvc13_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc13_mintime_x3);
+							}
+							if($key_point == 13){
+								$tempo_x2 = $this->functions->toSec($this->zvc14_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc14_mintime_x3);
+							}
+							if($key_point == 14){
+								$tempo_x2 = $this->functions->toSec($this->zvc15_mintime_x2);
+								$tempo_x3 = $this->functions->toSec($this->zvc15_mintime_x3);
 							}
 
 							$diff_x2 = ($tempo_x2 - $tempo);
