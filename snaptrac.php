@@ -27,6 +27,7 @@ echo $snaptrac->functions->distancia($pto1,$pto2) * 1000;
 //var_dump($snaptrac->radar);
 //var_dump($snaptrac->trac);
 //krumo($snaptrac->points);
+//var_dump($snaptrac->points);
 //var_dump($snaptrac->radar);
 //sleep(5000);
 

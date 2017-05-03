@@ -199,6 +199,7 @@ class snaptrac{
 	 */
 	public $relatorio_geral_pontos;
 	public $relatorio_exportar_chronosat;	
+	public $relatorio_pontos_zona_radar;
 	
 
 	#endregion
@@ -483,6 +484,7 @@ class snaptrac{
 			$this->zoneProcess($folder);
 			$this->radarProcess($folder);
 			$this->reportFile($file,'exportar_chronosat_unitario');
+			$this->reportFile($file,'relatorio_pontos_zona_radar');
 			//$this->reportFile($file,'radar');
 			//$this->reportFile($file,'points');
 			//$this->reportFile($file,'relatorio_pontos');
@@ -782,12 +784,13 @@ class snaptrac{
 				$arr_linha = array();
 				$falt_report = "";
 				$pass_report = "";
+				$this->relatorio_pontos_zona_radar = array();
 				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
 					if (isset($this->points[$tipo_desc])){
 						foreach ($this->points[$tipo_desc] AS $key_point => $point){
 							$key_point_txt = $point['descricao'];
 
-							// ---------------------------------------------------------------
+							// Perda de Waypoin ---------------------------------------------------------------
 
 							if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
 								$falt_desc = 'Perda: '.$key_point_txt;
@@ -795,7 +798,7 @@ class snaptrac{
 								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$this->lost_wp_penalty);
 							}
 
-							// ---------------------------------------------------------------
+							// Perda de Carimbo ---------------------------------------------------------------
 
 							if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
 								if(count($point['snap'][$folder]) > 0){
@@ -825,7 +828,7 @@ class snaptrac{
 							}
 							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
 								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $velmax);
-								$radar_penalty = $this->radar1_penalty;	
+								$radar_penalty = $this->radar1_penalty;	 
 							}
 							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
 								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $velmax);
@@ -1056,6 +1059,60 @@ class snaptrac{
 				$string = sprintf("Veículo;SS;Tipo de tempo;Horário;Obs\r\n");
 				$string .= $this->relatorio_exportar_chronosat;
 				
+			}
+			elseif ($tipo=='relatorio_pontos_zona_radar'){
+
+				$radares_array = array();
+
+				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar1']) > 0){
+					$radares_arr = $this->points['entradas'][0]['snap'][$folder][0]['radar1'];
+				}
+
+				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar2']) > 0){
+					$radares_arr = array_merge($radares_arr, $this->points['entradas'][0]['snap'][$folder][0]['radar2']);
+				}
+
+				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar3']) > 0){
+					$radares_arr = array_merge($radares_arr, $this->points['entradas'][0]['snap'][$folder][0]['radar3']);
+				}
+
+				/*printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
+
+				printf("Folder: $folder\r\n");
+				var_dump($this->points['entradas'][0]['snap'][$folder][0]);
+				printf("\r\n");
+
+				printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");*/
+
+				foreach($radares_arr AS $kpoint => $val){
+					if (is_numeric($kpoint)){
+
+						$point = $this->trac[$folder][$kpoint];
+
+						$string .= sprintf("w,d,%s,%s,%s,00/00/0000,00/00/00,00:00:00,0,0,48,0,13\r\n"
+							,$point['velocidade']
+							,$point['latitude']
+							,$point['longitude']
+						);
+					}
+				}
+				
+				/*foreach ($this->points['entradas'] AS $entrada){
+					foreach ($entrada['snap'] AS $snap) {
+						foreach ($snap[$folder] AS $snap_folder){
+							foreach ($snap_folder['radar1'] AS $kpoint){
+								$point = $this->trac[$folder][$kpoint];
+								if (is_numeric($point)){
+									$string .= sprintf("w,d,%s,%s,%s,00/00/0000,00/00/00,00:00:00,0,0,48,0,13\r\n"
+										,$point['velocidade']
+										,$point['latitude']
+										,$point['longitude']
+									);
+								}
+							}
+						}
+					}
+				}*/
 			}
 			else {
 				foreach ($this->$tipo AS $point){
