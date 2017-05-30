@@ -585,12 +585,25 @@ class snaptrac{
 		//$this->pontos_radar1 = array();
 		//$this->pontos_radar2 = array();
 		//$this->pontos_radar3 = array();
+
+		/*printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
+
+		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
+			foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
+				foreach ($snap['zone'] AS $keyZone => $vel){
+					var_dump($keyZone);
+				}
+			}
+		}
+		printf("\r\n");*/
+
+		printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
 		
 		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
 			if(is_array($entrada['snap'][$folder])){
 				foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
 					if(is_array($snap['zone'])){
-						foreach ($snap['zone'] AS $keyZone => $vel){						
+						foreach ($snap['zone'] AS $keyZone => $vel){
 							if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
 							if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
 							if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
@@ -1062,24 +1075,27 @@ class snaptrac{
 			}
 			elseif ($tipo=='relatorio_pontos_zona_radar'){
 
-				$radares_array = array();
+				if (!is_array($radares_arr)){
+					$radares_arr = array();
+				}
 
 				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar1']) > 0){
-					$radares_arr = $this->points['entradas'][0]['snap'][$folder][0]['radar1'];
+					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar1'];
 				}
 
 				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar2']) > 0){
-					$radares_arr = array_merge($radares_arr, $this->points['entradas'][0]['snap'][$folder][0]['radar2']);
+					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar2'];
 				}
 
 				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar3']) > 0){
-					$radares_arr = array_merge($radares_arr, $this->points['entradas'][0]['snap'][$folder][0]['radar3']);
+					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar3'];
 				}
 
 				/*printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
 
 				printf("Folder: $folder\r\n");
-				var_dump($this->points['entradas'][0]['snap'][$folder][0]);
+				//var_dump($this->points['entradas'][0]['snap'][$folder][0]);
+				var_dump($radares_arr);
 				printf("\r\n");
 
 				printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");*/
