@@ -995,7 +995,7 @@ class snaptrac{
 
 									$string .= $string_tmp;
 
-									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4","CT","P")) ){
+									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4","CT")) ){
 
 										
 
