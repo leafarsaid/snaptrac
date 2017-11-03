@@ -1,14 +1,17 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL ^ E_NOTICE);
+
 ini_set('memory_limit', '128000M');
 set_time_limit (0);
+
 include_once 'php/snaptrac.php';
 include_once 'php/functions.php';
-include_once 'lib/krumo/class.krumo.php';
 //require_once 'lib/objDB.php';
 
 $snaptrac = new snaptrac(parse_ini_file("snaptrac.ini",true));
-
 $snaptrac->process();
 
 /*

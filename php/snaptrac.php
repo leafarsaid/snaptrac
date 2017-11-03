@@ -4,11 +4,10 @@ require_once 'functions.php';
 
 class snaptrac{
 
-
 #region Constantes
 	
 	/**
-	 * Velocidade m·xima
+	 * Velocidade m√°xima
 	 * @var integer
 	 */
 	public $velmax;
@@ -44,13 +43,13 @@ class snaptrac{
 	public $processed_path;
 	
 	/**
-	 * Caminho para relatÛrios
+	 * Caminho para relat√≥rios
 	 * @var string
 	 */
 	public $report_path;	
 	
 	/**
-	 * Tamanho do espaÁo entre as referÍncias
+	 * Tamanho do espa√ßo entre as refer√™ncias
 	 * @var string
 	 */
 	public $steps_length;
@@ -164,25 +163,25 @@ class snaptrac{
 	public $trac;
 		
 	/**
-	 * Matriz com as referÍncias
+	 * Matriz com as refer√™ncias
 	 * @var array
 	 */
 	public $steps;
 	
 	/**
-	 * Matriz com os pontos onde houveram avanÁos na velocidade acima da m·xima
+	 * Matriz com os pontos onde houveram avan√ßos na velocidade acima da m√°xima
 	 * @var array
 	 */
 	public $radar;
 	
 		/**
-	 * Matriz com os pontos onde houveram avanÁos na velocidade acima da m·xima - para todos os arquivos
+	 * Matriz com os pontos onde houveram avan√ßos na velocidade acima da m√°xima - para todos os arquivos
 	 * @var array
 	 */
 	public $radar_geral;
 	
 	/**
-	 * Array com os pontos dentro dos pontos de entrada e saÌda
+	 * Array com os pontos dentro dos pontos de entrada e sa√≠da
 	 * @var array
 	 */
 	public $trechos;
@@ -194,17 +193,16 @@ class snaptrac{
 	public $arr_tipo;
 	
 	/**
-	 * String com rel·tÛrio de todos os carros
+	 * String com rel√°t√≥rio de todos os carros
 	 * @var string
 	 */
 	public $relatorio_geral_pontos;
-	public $relatorio_exportar_chronosat;	
-	public $relatorio_pontos_zona_radar;
+	public $relatorio_exportar_chronosat;
 	
 
 	#endregion
 
-#region Atributos acessÛrios
+#region Atributos acess√≥rios
 	
 	/**
 	 * Array com caminhos para arquivos dos competidores
@@ -213,16 +211,16 @@ class snaptrac{
 	public $arq_trac;
 	
 	/**
-	 * FunÁıes
+	 * Fun√ß√µes
 	 * @var object
 	 */
 	public $functions;
 
 	#endregion
 
-#region MÈtodos
+#region M√©todos de orquestra√ß√£o
 	
-	/** MÈtodo construtor
+	/** M√©todo construtor
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
@@ -249,10 +247,17 @@ class snaptrac{
 			'I2' => 'inter2',
 			'I3' => 'inter3',
 			'I4' => 'inter4',
-			'IR' => 'entradas',
-			'FR' => 'saidas'
-		);
-		
+			'IR1' => 'entrada1',
+			'FR1' => 'saida1',
+			'IR2' => 'entrada2',
+			'FR2' => 'saida2',
+			'IR3' => 'entrada3',
+			'FR3' => 'saida3',
+			'IR4' => 'entrada4',
+			'FR4' => 'saida4',
+			'IR5' => 'entrada5',
+			'FR5' => 'saida5'
+		);		
 		$this->relatorio_geral_pontos = '';
 		$this->relatorio_exportar_chronosat = '';		
 		$this->current_ss = $st['Parametros']['current_ss'];
@@ -269,108 +274,51 @@ class snaptrac{
 		$this->radar3_penalty = $st['Parametros']['radar3_penalty'];
 		$this->sec_continuous = $st['Parametros']['sec_continuous'];
 
-		$this->zvc1_mintime_x2 = $st['Parametros']['zvc1_mintime_x2'];
-		$this->zvc1_mintime_x3 = $st['Parametros']['zvc1_mintime_x3'];
-		$this->zvc1_maxspeed = $st['Parametros']['zvc1_maxspeed'];
-
-		$this->zvc2_mintime_x2 = $st['Parametros']['zvc2_mintime_x2'];
-		$this->zvc2_mintime_x3 = $st['Parametros']['zvc2_mintime_x3'];
-		$this->zvc2_maxspeed = $st['Parametros']['zvc2_maxspeed'];
-		
-		$this->zvc3_mintime_x2 = $st['Parametros']['zvc3_mintime_x2'];
-		$this->zvc3_mintime_x3 = $st['Parametros']['zvc3_mintime_x3'];
-		$this->zvc3_maxspeed = $st['Parametros']['zvc3_maxspeed'];
-		
-		$this->zvc4_mintime_x2 = $st['Parametros']['zvc4_mintime_x2'];
-		$this->zvc4_mintime_x3 = $st['Parametros']['zvc4_mintime_x3'];
-		$this->zvc4_maxspeed = $st['Parametros']['zvc4_maxspeed'];
-		
-		$this->zvc5_mintime_x2 = $st['Parametros']['zvc5_mintime_x2'];
-		$this->zvc5_mintime_x3 = $st['Parametros']['zvc5_mintime_x3'];
-		$this->zvc5_maxspeed = $st['Parametros']['zvc5_maxspeed'];
-		
-		$this->zvc6_mintime_x2 = $st['Parametros']['zvc6_mintime_x2'];
-		$this->zvc6_mintime_x3 = $st['Parametros']['zvc6_mintime_x3'];
-		$this->zvc6_maxspeed = $st['Parametros']['zvc6_maxspeed'];
-		
-		$this->zvc7_mintime_x2 = $st['Parametros']['zvc7_mintime_x2'];
-		$this->zvc7_mintime_x3 = $st['Parametros']['zvc7_mintime_x3'];
-		$this->zvc7_maxspeed = $st['Parametros']['zvc7_maxspeed'];
-		
-		$this->zvc8_mintime_x2 = $st['Parametros']['zvc8_mintime_x2'];
-		$this->zvc8_mintime_x3 = $st['Parametros']['zvc8_mintime_x3'];
-		$this->zvc8_maxspeed = $st['Parametros']['zvc8_maxspeed'];
-		
-		$this->zvc9_mintime_x2 = $st['Parametros']['zvc9_mintime_x2'];
-		$this->zvc9_mintime_x3 = $st['Parametros']['zvc9_mintime_x3'];
-		$this->zvc9_maxspeed = $st['Parametros']['zvc9_maxspeed'];
-		
-		$this->zvc10_mintime_x2 = $st['Parametros']['zvc10_mintime_x2'];
-		$this->zvc10_mintime_x3 = $st['Parametros']['zvc10_mintime_x3'];
-		$this->zvc10_maxspeed = $st['Parametros']['zvc10_maxspeed'];
-		
-		$this->zvc11_mintime_x2 = $st['Parametros']['zvc11_mintime_x2'];
-		$this->zvc11_mintime_x3 = $st['Parametros']['zvc11_mintime_x3'];
-		$this->zvc11_maxspeed = $st['Parametros']['zvc11_maxspeed'];
-		
-		$this->zvc12_mintime_x2 = $st['Parametros']['zvc12_mintime_x2'];
-		$this->zvc12_mintime_x3 = $st['Parametros']['zvc12_mintime_x3'];
-		$this->zvc12_maxspeed = $st['Parametros']['zvc12_maxspeed'];
-		
-		$this->zvc13_mintime_x2 = $st['Parametros']['zvc13_mintime_x2'];
-		$this->zvc13_mintime_x3 = $st['Parametros']['zvc13_mintime_x3'];
-		$this->zvc13_maxspeed = $st['Parametros']['zvc13_maxspeed'];
-		
-		$this->zvc14_mintime_x2 = $st['Parametros']['zvc14_mintime_x2'];
-		$this->zvc14_mintime_x3 = $st['Parametros']['zvc14_mintime_x3'];
-		$this->zvc14_maxspeed = $st['Parametros']['zvc14_maxspeed'];
-		
-		$this->zvc15_mintime_x2 = $st['Parametros']['zvc15_mintime_x2'];
-		$this->zvc15_mintime_x3 = $st['Parametros']['zvc15_mintime_x3'];
-		$this->zvc15_maxspeed = $st['Parametros']['zvc15_maxspeed'];
-
-		$this->link = mysqli_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002', 'chronosat1');
-
+		for ($z=1;$z<=15;$z++){
+			$var_zvc_mintime_x2 = 'zvc'.$z.'_mintime_x2';
+			$var_zvc_mintime_x3 = 'zvc'.$z.'_mintime_x3';
+			$var_zvc_maxspeed = 'zvc'.$z.'_maxspeed';
+			$this->$var_zvc_mintime_x2 = $st['Parametros'][$var_zvc_mintime_x2];
+			$this->$var_zvc_mintime_x3 = $st['Parametros'][$var_zvc_mintime_x3];
+			$this->$var_zvc_maxspeed = $st['Parametros'][$var_zvc_maxspeed];
+		}
+		//$this->link = mysqli_connect('mysql02.chronosat.com.br', 'chronosat1', 'chrono2002', 'chronosat1');
 	}
 
-	/** Converte as coordenadas da planinha em uma matriz de pontos
+	/** M√©todo que orquestra o processamento dos tracks
+	 *
+	 */
+	public function process(){
+		try{			
+			$this->getPoints();
+			$this->getFiles();
+			foreach ($this->arq_trac AS $file){
+				$this->tracProcess($file);
+				$folder = str_replace(".", "_", $file);
+				$this->pointProcess($folder);
+				$this->setTrechos($folder);
+				$this->zoneProcess($folder);
+				$this->radarProcess($folder);
+				$this->reportPoints();
+			}
+			//mysqli_close($this->link);
+		} catch(Exception $e){
+			echo $e->getMessage();
+			//mysqli_close($this->link);
+		}
+	}
+
+	/** Converte as coordenadas no GPX em uma matriz de pontos
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 18/06/2014
 	 * @version 01/11/2016 novos tipos de pontos (em csv)
 	 */
-	public function getPoints(){
+	private function getPoints(){
+
+		printf("Obtendo pontos do arquivo ".$this->arq_pontos.". . .\r\n");
 			
 		$array_data = array();
-		
-		/*if (($handle = fopen($this->arq_pontos, "r")) !== FALSE) {
-			while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-				$pointer = trim($data[0]);
-				$coords = $data[2];
-				$coords = str_replace('S', '-', $coords);
-				$coords = str_replace('N', '+', $coords);
-				$coords = str_replace('W', '-', $coords);
-				$coords = str_replace('E', '+', $coords);
-				$exp = explode(' ',$coords);
-				
-				$pto = array();
-				
-				$pto['latitude'] = $exp[0]*1;
-				$pto['longitude'] = $exp[1]*1;
-				$pto['descricao'] = $data[1];
-				$pto['snap'] = array();
-				
-				$tipo_pto = 'nada';				
-				foreach ($this->arr_tipo AS $tipo_pto_key => $tipo_pto_val){
-					if ($pointer === $tipo_pto_key){
-						$tipo_pto = $tipo_pto_val;
-					}
-				}
-
-				$array_data[$tipo_pto][] = $pto;
-			}			
-			fclose($handle);
-		}*/
 
 		$xml = simplexml_load_file($this->arq_pontos);
 		foreach($xml->wpt AS $wpt){
@@ -389,112 +337,87 @@ class snaptrac{
 				}
 			}
 
+			$time = $wpt->time->asXml();
+
+			if(strlen($time)){
+				$ss = intval(date('d', strtotime($time)));
+			} else{
+				$ss = 0;
+			}
+
+			//$array_data[$ss][$tipo_pto][] = $pto;
 			$array_data[$tipo_pto][] = $pto;
 		}
 		
 		$this->points_ini = $this->points = $array_data;
 	}
-	
-	public function process(){
-		try{
-			printf("Obtendo pontos do arquivo ".$this->arq_pontos.". . .\r\n");
-			$this->getPoints();
-			$this->tracProcess();	
-			mysqli_close($this->link);
-		} catch(Exception $e){
-			echo $e->getMessage();
-			mysqli_close($this->link);
-		}
-	}
-	
-	/** Processa a trilha
+
+	#endregion
+
+#region M√©todos de processamento
+		
+	/** Processa o track
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 25/06/2014
 	 * @version 02/11/2014
 	 */
-	public function tracProcess(){
-	
-		$this->getFiles();
-	
-		foreach ($this->arq_trac AS $file){		
+	private function tracProcess($file){
+			
+		printf("Processando arquivo ".$file.". . .\r\n");	
 
-			printf("Processando arquivo ".$file.". . .\r\n");
+		$folder = str_replace(".", "_", $file);		
+		
+		//s√≥ processa n√£o existir
+		if (!is_dir($this->report_path."/".$folder)){
 			
-			//$this->points = array();
-			//$this->trac = array();
-			
-			$folder = str_replace(".", "_", $file);
-			
-			//sÛ processa n„o existir
-			if (!is_dir($this->report_path."/".$folder)){
-				
-				$xml = simplexml_load_file($this->import_path."/".$file);
-				
-				$previousKey = 0;
-				//acumulador de dist‚ncia
-				$dist_acum = 0;
+			$xml = simplexml_load_file($this->import_path."/".$file);			
+			$previousKey = 0;
+			$dist_acum = 0;
 
-				foreach($xml->trk AS $trk){
-					foreach($trk->trkseg AS $trkseg) {	
-						foreach($trkseg->trkpt AS $trkpt){
-							//Pega todas as informaÁıes de cada ponto da trilha
-							$hora = $this->functions->toSec(substr($trkpt->time,11,8));
-							
-							$this->trac[$folder][$hora]['indice'] = $hora;
-							$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
-							$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
-							$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
-							$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,11,8)) + $this->fuso));  	
-							$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
-							//distancia em km
-							if ($previousKey > 0){
-								$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$folder][$previousKey],$this->trac[$folder][$hora]);
-							} else{
-								$this->trac[$folder][$hora]['distancia'] = floatval(0);
-							}
-							$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
-							$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
-							if($hora > $previousKey){
-								$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
-							}
-							$vel = ($vel > 0) ? $vel : 0;
-							$this->trac[$folder][$hora]['velocidade'] = $vel;
-							/*if ($vel > $this->velmax){	
-								$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'SIM';
-							} else{
-								$this->trac[$folder][$hora]['ultrapassou_velmax'] = 'NAO';
-							}*/
-							
-							$arr_step = $this->trac[$folder][$hora];
-							
-							//steps
-							if ($dist_acum >= $this->steps_length){			
-								$this->steps[$hora] = $arr_step;
-								$dist_acum = 0;
-							}
-							
-							$previousKey = $hora;
+			//var_dump($xml->trk);
+			//exit();
+
+			foreach($xml->trk AS $trk){
+				foreach($trk->trkseg AS $trkseg) {	
+					foreach($trkseg->trkpt AS $trkpt){
+						//Pega todas as informa√ß√µes de cada ponto da trilha
+						$hora = $this->functions->toSec(substr($trkpt->time,11,8));
+						
+						$this->trac[$folder][$hora]['indice'] = $hora;
+						$this->trac[$folder][$hora]['latitude'] = floatval($trkpt['lat']);
+						$this->trac[$folder][$hora]['longitude'] = floatval($trkpt['lon']);
+						$this->trac[$folder][$hora]['data'] = substr($trkpt->time,0,10);
+						$this->trac[$folder][$hora]['hora'] = gmstrftime('%H:%M:%S',(strtotime(substr($trkpt->time,11,8)) + $this->fuso));  	
+						$this->trac[$folder][$hora]['altitude'] = floatval($trkpt->ele);
+						//distancia em km
+						if ($previousKey > 0){
+							$this->trac[$folder][$hora]['distancia'] = $this->functions->distancia($this->trac[$folder][$previousKey],$this->trac[$folder][$hora]);
+						} else{
+							$this->trac[$folder][$hora]['distancia'] = floatval(0);
 						}
+						$dist_acum += ($this->trac[$folder][$hora]['distancia']);		
+						$this->trac[$folder][$hora]['distancia_acumulada'] = $dist_acum;
+						if($hora > $previousKey){
+							$vel = round(($this->trac[$folder][$hora]['distancia'] / (($hora-$previousKey)/3600)),2);
+						}
+						$vel = ($vel > 0) ? $vel : 0;
+						$this->trac[$folder][$hora]['velocidade'] = $vel;						
+						
+						$arr_step = $this->trac[$folder][$hora];
+						
+						//steps
+						if ($dist_acum >= $this->steps_length){			
+							$this->steps[$hora] = $arr_step;
+							$dist_acum = 0;
+						}
+						
+						$previousKey = $hora;
 					}
-				}			
-				rename($this->import_path."/".$file, $this->processed_path."/".$file);
-			}
-			$this->pointProcess($folder);
-			$this->zoneProcess($folder);
-			$this->radarProcess($folder);
-			$this->reportFile($file,'exportar_chronosat_unitario');
-			$this->reportFile($file,'relatorio_pontos_zona_radar');
-			//$this->reportFile($file,'radar');
-			//$this->reportFile($file,'points');
-			//$this->reportFile($file,'relatorio_pontos');
-			//$this->reportFile($file,'relatorio_radar');
-			//$this->radar = array();
-			//$this->points = $this->points_ini;
-			
-		}
-		//$this->reportFile('','relatorio_geral_pontos');
-		$this->reportFile('','exportar_chronosat');
+				}
+			}			
+			//rename($this->import_path."/".$file, $this->processed_path."/".$file);
+		}	
 	}
 			
 	/** Processa os pontos da planilha para achar a tangente na trilha
@@ -527,27 +450,16 @@ class snaptrac{
 						$this->points[$tipo][$key]['snap'][$folder] = array();
 						
 						foreach($laps AS $lap){
-							$ponto_mais_proximo = $this->nearest($point, $lap);	
-							
-							//se for waypoint, retira se for passagem por outro waypoint
-							//$outro_waypoint = false;
-							
-							//if(!($tipo == 'waypoints' && $outro_waypoint)){
-								$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
-							//}
+							$ponto_mais_proximo = $this->nearest($point, $lap);							
+							$this->points[$tipo][$key]['snap'][$folder][] = $ponto_mais_proximo;
 						}
-
-						/*if($tipo=='waypoints' && $key===0){
-							var_dump($this->points[$tipo][$key]['snap'][$folder]);
-							echo('----------------------------------------------------------------------------------');
-						}*/
 					}
 				}
 			}
 		}
 	}
 	
-	/** Coloca nos pontos de entrada a informaÁ„o de todos os pontos que est„o dentro da zona referente a entrada
+	/** Coloca nos pontos de entrada a informa√ß√£o de todos os pontos que est√£o dentro da zona referente a entrada
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 06/12/2016
@@ -555,18 +467,59 @@ class snaptrac{
 	private function zoneProcess($folder){
 		
 		//somente entradas possuem zones
-		foreach ($this->points['entradas'] AS $key => $point){
-			if(is_array($point['snap'][$folder])){
-				foreach($point['snap'][$folder] AS $keySnap => $snap){
-					foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
-						if ($ptTrac['indice'] >= $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice']
-							&& $ptTrac['indice'] <= $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice']
-							&& $ptTrac['velocidade'] > 0){
+		for ($e=1;$e<=5;$e++){
+			$txt_entrada = "entrada".$e;
+			$txt_saida = "saida".$e;
+			if(is_array($this->points[$txt_entrada])){
+				foreach ($this->points[$txt_entrada] AS $key => $point){
+					if(is_array($point['snap'][$folder])){
 
-							$idx = $ptTrac['indice'];
-							$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone'][$idx] = $ptTrac['velocidade'];
-							$tempo = $this->points['saidas'][$key]['snap'][$folder][$keySnap]['indice'] - $this->points['entradas'][$key]['snap'][$folder][$keySnap]['indice'];
-							$this->points['entradas'][$key]['snap'][$folder][$keySnap]['zone']['tempo'] = $tempo;
+						foreach($point['snap'][$folder] AS $keyPass => $snap){
+
+							//verifica se a zona est√° dentro de um trecho
+							//necess√°rio processar antes o setTrecho
+							$continua = false;
+							$keyPassSaida2 = $keyPass;
+							$ss_entrada = $this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['ss'];
+							if($ss_entrada > 0){
+								$ss_saida = $this->points[$txt_saida][$key]['snap'][$folder][$keyPass]['ss'];
+								if($ss_entrada == $ss_saida){
+									$continua = true;
+									$keyPassSaida2 = $keyPass;
+								} else {
+									if ($ss_entrada > 0){
+										foreach ($this->points[$txt_saida][$key]['snap'][$folder] AS $keyPassSaida => $passSaida){
+											if($passSaida['ss'] == $ss_entrada){
+												$continua = true;
+												$keyPassSaida2 = $keyPassSaida;
+											}
+										}
+									} else {
+										$continua = false;
+									}
+								}
+							}
+
+							if($continua){
+
+								$pto_entrada = $this->points[$txt_entrada][$key]['snap'][$folder][$keyPass];
+								$pto_saida = $this->points[$txt_saida][$key]['snap'][$folder][$keyPassSaida2];
+
+								foreach ($this->trac[$folder] AS $keyTrac => $ptTrac){
+									if ($ptTrac['indice'] >= $pto_entrada['indice']	&& $ptTrac['indice'] <= $pto_saida['indice'] && $ptTrac['velocidade'] > 0){
+
+										$idx = $ptTrac['indice'];								
+
+										//tempo em segundo de passagem pela zona
+										$tempo = $pto_saida['indice'] - $pto_entrada['indice'];					
+
+										if ($tempo > 0 || true){
+											$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone'][$idx] = $ptTrac['velocidade'];
+											$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone']['tempo'] = $tempo;				
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -574,65 +527,95 @@ class snaptrac{
 		}
 	}	
 	
-	/** Coloca nos pontos de entrada a informaÁ„o de todos os pontos que est„o dentro da zona referente a entrada, 
-	que ultrapassaram a velocidade m·xima
+	/** Coloca nos pontos de entrada a informa√ß√£o de todos os pontos que est√£o dentro da zona referente a entrada, que ultrapassaram a velocidade m√°xima
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 06/12/2016
 	 */
-	private function radarProcess($folder){	
+	private function radarProcess($folder){				
 
-		//$this->pontos_radar1 = array();
-		//$this->pontos_radar2 = array();
-		//$this->pontos_radar3 = array();
+		for ($e=1;$e<=5;$e++){
+			$txt_entrada = "entrada".$e;
+			if(is_array($this->points[$txt_entrada])){
+				foreach ($this->points[$txt_entrada] AS $keyEntrada => $entrada){
 
-		/*printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
+					for ($z=0;$z<15;$z++){
+						$var_zvc = "zvc".($z+1)."_maxspeed";
+						if ($keyEntrada == $z) {
+							$maxspeed = $this->$var_zvc;
+						}
+					}
 
-		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
-			foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
-				foreach ($snap['zone'] AS $keyZone => $vel){
-					var_dump($keyZone);
-				}
-			}
-		}
-		printf("\r\n");*/
+					if(is_array($entrada['snap'][$folder])){
+						foreach ($entrada['snap'][$folder] AS $keyPass => $pass){
+							if(is_array($pass['zone'])){
+								foreach ($pass['zone'] AS $keyZone => $vel){
+									if (is_numeric($keyZone)){								
 
-		printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
-		
-		foreach ($this->points['entradas'] AS $keyEntrada => $entrada){
-			if(is_array($entrada['snap'][$folder])){
-				foreach ($entrada['snap'][$folder] AS $keySnap => $snap){
-					if(is_array($snap['zone'])){
-						foreach ($snap['zone'] AS $keyZone => $vel){
-							if ($keyEntrada == 0) $maxspeed = $this->zvc1_maxspeed;
-							if ($keyEntrada == 1) $maxspeed = $this->zvc2_maxspeed;
-							if ($keyEntrada == 2) $maxspeed = $this->zvc3_maxspeed;
-							if ($keyEntrada == 3) $maxspeed = $this->zvc4_maxspeed;
-							if ($vel >= $maxspeed && $vel < ($maxspeed+$this->radar1)){
-								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar1'][$keyZone] = $vel;
+										if ($vel >= $maxspeed && $vel < ($maxspeed+$this->radar1)){
+											$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$keyPass]['zone']['radar1'][] = $vel;
+										}
+
+										if ($vel >= ($maxspeed+$this->radar1) && $vel < ($maxspeed+$this->radar2)){
+											$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$keyPass]['zone']['radar2'][] = $vel;
+										}
+
+										if ($vel >= ($maxspeed+$this->radar2)){
+											$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$keyPass]['zone']['radar3'][] = $vel;
+										}
+									}
+								}
 							}
-							if ($vel >= ($maxspeed+$this->radar1) && $vel < ($maxspeed+$this->radar2)){
-								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar2'][$keyZone] = $vel;
-							}
-							if ($vel >= ($maxspeed+$this->radar2)){
-								$this->points['entradas'][$keyEntrada]['snap'][$folder][$keySnap]['radar3'][$keyZone] = $vel;
-							}
+						}
+					}
+
+					for($passagem=0;$passagem<count($this->points[$txt_entrada][$keyEntrada]['snap'][$folder]);$passagem++){
+
+						if(count($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar1']) > 1){
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['gratervel'] = $this->penalizaRadar($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar1'], $maxspeed);
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar_penalty'] = $this->radar1_penalty;
+						}
+
+						if(count($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar2']) > 1){
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['gratervel'] = $this->penalizaRadar($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar2'], $maxspeed);
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar_penalty'] = $this->radar2_penalty;
+						}
+
+						if(count($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar3']) > 1){
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['gratervel'] = $this->penalizaRadar($this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar3'], $maxspeed);
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar_penalty'] = $this->radar3_penalty;
+						} else {
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['gratervel'] = '';
+							$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$passagem]['zone']['radar_penalty'] = '';
 						}
 					}
 				}
 			}
 		}
 	}
+
+	/** Processo de penaliza√ß√£o dos arquivos
+	 *
+	 * @author Rafael Dias <rafael@chronosat.com.br>
+	 * @version 25/10/2017
+	 */
+	private function penaltyProcess($folder){
+
+	}
+
+	#endregion
+
+#region M√©todos de auxiliares
 	
-	/**  Retorna ponto mais prÛximo de uma lista para uma referÍncia
+	/**  Retorna ponto mais pr√≥ximo de uma lista para uma refer√™ncia
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 26/06/2014
-	 * @param unknown_type $point ReferÍncia
+	 * @param unknown_type $point Refer√™ncia
 	 * @param unknown_type $arrPoints Lista
 	 * @return Ambigous <multitype:, unknown>
 	 */
-	public function nearest($point, $arrPoints){
+	private function nearest($point, $arrPoints){
 		
 		$retorno = array();
 		
@@ -656,7 +639,7 @@ class snaptrac{
 	 * @param unknown_type $arrPoints
 	 * @param unknown_type $interval
 	 */
-	public function group($arrPoints, $interval){
+	private function group($arrPoints, $interval){
 		$group = array();
 		
 		$indiceAnterior = 0;
@@ -681,12 +664,15 @@ class snaptrac{
 		return $group;
 	}
 		
-	/** LÍ pasta dos arquivos dos competidores
+	/** L√™ pasta dos arquivos dos competidores
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 04/07/2014
 	 */
-	public function getFiles(){
+	private function getFiles(){
+
+		printf("Obtendo arquivos da pasta ".$this->import_path.". . .\r\n");
+
 		if ($handle = opendir($this->import_path)) {
 			while (false !== ($file = readdir($handle))) {
 				if ($file != "." && $file != "..") {
@@ -696,458 +682,95 @@ class snaptrac{
 			closedir($handle);
 		}
 	}
-	
-	/** Gera relatÛrios
+
+	/**
+	 *
+	 */
+	private function setTrechos($folder){
+		$largadas = array();
+		$chegadas = array();
+		foreach ($this->points['largada'][0]['snap'][$folder] AS $largada) $largadas[] = $largada['indice'];
+		foreach ($this->points['chegada'][0]['snap'][$folder] AS $chegada) $chegadas[] = $chegada['indice'];
+
+		//var_dump($largadas);
+
+		foreach($this->arr_tipo AS $tipo){
+			if (isset($this->points[$tipo])){
+				foreach ($this->points[$tipo] AS $key => $point){
+					foreach($point['snap'][$folder] AS $keyPass => $pass){
+						for($l=0; $l<count($largadas); $l++){
+							if ($pass['indice']>=$largadas[$l] && $pass['indice']<=$chegadas[$l]){
+								$this->points[$tipo][$key]['snap'][$folder][$keyPass]['ss'] = $l+1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	/** Gera relat√≥rios
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
 	 * @version 04/07/2014
 	 */
-	public function reportFile($file,$tipo='radar'){
-		
-		$folder = str_replace(".", "_", $file);
-			
-		$path = $this->report_path."/".$folder;
-		if (!is_dir($path)){
-			mkdir($path, 0777);
-		}
-		
-		$ext = "txt";
-		if ($tipo=='relatorio_pontos' || $tipo=='relatorio_geral_pontos' || $tipo=='exportar_chronosat_unitario' || $tipo=='exportar_chronosat'){
-			$ext = "csv";
-		}
-		
-		$path = $this->report_path."/".$folder."/$tipo.$ext";
-		touch($path);			
-		$handle = fopen($path, "w");
-		if ($handle){
-			$string = sprintf("Version,212\r\n\r\nWGS 1984 (GPS),217, 6378137, 298.257223563, 0, 0, 0\r\nUSER GRID,0,0,0,0,0\r\n\r\n");			
-			if ($tipo=='points'){
-				foreach ($this->points['entradas'] AS $key => $point){
-					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,151,0,13\r\n"
-						,'I'.$key
-						,$point['latitude']
-						,$point['longitude']
-					);
-				}
-				foreach ($this->points['saidas'] AS $key => $point){
-					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,151,0,13\r\n"
-						,'F'.$key
-						,$point['latitude']
-						,$point['longitude']
-					);
-				}
-			} 
-			elseif ($tipo=='relatorio_pontos'){
-				$string = sprintf("VeÌculo;Passagem;Largada;Chegada;Tempo\r\n");
-				$string_aux = '';
-				$arr_linha = array();
-				$arr_tipo = array('entradas','saidas');
-				foreach ($arr_tipo AS $tipo){
-					if ($tipo=='entradas') $letra = 'I';
-					if ($tipo=='saidas') $letra = 'F';
-					foreach ($this->points[$tipo] AS $key => $point){						
-						$volta = 1;
-						foreach($point['snap'] AS $snap){
-							$arr_linha[intval($folder)][$volta][$tipo] = $snap['hora'];
-							$volta++;
-						}
-					}
-				}
-				date_default_timezone_set("Brazil/East");
-				foreach($arr_linha AS $veiculo => $voltas){
-					foreach($voltas AS $num_volta => $volta){
-						$string_aux .= sprintf("%s;%s;%s;%s;%s\r\n"
-							,$veiculo
-							,$num_volta
-							,$volta['entradas']
-							,$volta['saidas']
-							,gmstrftime('%H:%M:%S',(strtotime($volta['saidas']))-(strtotime($volta['entradas'])))
-						);
-					}
-				}
-				
-				$string .= $string_aux;
-				$this->relatorio_geral_pontos .= $string_aux;
-							
-			} 
-			elseif ($tipo=='relatorio_radar'){
-				
-				$maiorVelocidade = 0;
-				foreach($this->radar AS $trac){	
-					if ($maiorVelocidade < $trac['velocidade']){
-						$maiorVelocidade = floatval($trac['velocidade']);
-					}
-				}
-				
-				$string = "Quantidade de pontos acima da velocidade m·xima dentro das zonas de radar: ".count($this->radar);
-				$string .= sprintf("\r\n");
-				$string .= "Maior velocidade encontrada (km/h): ".$maiorVelocidade;
-				$string .= sprintf("\r\n");
-							
-			} 
-			elseif ($tipo=='relatorio_geral_pontos'){	
-				$string = sprintf("VeÌculo;Passagem;Largada;Chegada;Tempo\r\n");			
-				$string .= $this->relatorio_geral_pontos;
-			
-			} 
-			elseif ($tipo=='exportar_chronosat_unitario'){
-				$string2 = $string;
-				$string = sprintf("VeÌculo;SS;Tipo de tempo;Hor·rio;Obs\r\n");
-				$string_aux = "";
-				$arr_linha = array();
-				$falt_report = "";
-				$pass_report = "";
-				$this->relatorio_pontos_zona_radar = array();
-				foreach ($this->arr_tipo AS $tipo_key => $tipo_desc){
-					if (isset($this->points[$tipo_desc])){
-						foreach ($this->points[$tipo_desc] AS $key_point => $point){
-							$key_point_txt = $point['descricao'];
+	private function reportPoints($folder = ''){
 
-							// Perda de Waypoin ---------------------------------------------------------------
+		ob_flush();
+		ob_start();
 
-							if($tipo_key=='W' && count($point['snap'][$folder]) == 0){
-								$falt_desc = 'Perda: '.$key_point_txt;
-								$falt_report .= sprintf("%s\r\n",$falt_desc);
-								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$this->lost_wp_penalty);
-							}
+		$data = array();
 
-							// Perda de Carimbo ---------------------------------------------------------------
+		foreach($this->points AS $tipoPonto => $pontosRef){
+			if ($tipoPonto != 'nada'){
+				$i = 0;				
+				foreach($pontosRef AS $pontoRef){
+					$data[$tipoPonto][$i]["latitude"] = $pontoRef['latitude'];
+					$data[$tipoPonto][$i]["longitude"] = $pontoRef['longitude'];					
+					$data[$tipoPonto][$i]["descricao"] = $pontoRef['descricao'];
 
-							if($tipo_key=='CB' && (count($point['snap'][$folder]) == 0 || $point['snap'][$folder][0]['velocidade'] > $this->stamp_vel)){
-								if(count($point['snap'][$folder]) > 0){
-									$obs = ' - Velocidade: '.$point['snap'][$folder][0]['velocidade'].'km/h';
-								}
-								else{
-									$obs = '';
-								}
-								$falt_desc = 'Perda: '.$key_point_txt.$obs;
-								$falt_report .= sprintf("%s\r\n",$falt_desc);
-								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$this->lost_stamp_penalty);
-							}
+					foreach($pontoRef['snap'] AS $folder => $passagem){
+						$p = 0;
+						foreach($passagem AS $pontoPass){							
+							$data[$tipoPonto][$i]["passagens"][$folder][$p]["ss"]=$pontoPass['ss'];
+							$data[$tipoPonto][$i]["passagens"][$folder][$p]["hora"]=$pontoPass['hora'];
+							$data[$tipoPonto][$i]["passagens"][$folder][$p]["velocidade"]=$pontoPass['velocidade'];
+							//if ($tipoPonto=='entradas'){
 
-							// Radares -------------------------------------------------------
-							$radar_penalty = '';
-							if($key_point == 0){
-								$velmax = $this->zvc1_maxspeed;
-							}
-							if($key_point == 1){
-								$velmax = $this->zvc2_maxspeed;
-							}
-							if($key_point == 2){
-								$velmax = $this->zvc3_maxspeed;
-							}
-							if($key_point == 3){
-								$velmax = $this->zvc4_maxspeed;
-							}
-							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar1']) > 1){
-								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar1'], $velmax);
-								$radar_penalty = $this->radar1_penalty;	 
-							}
-							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar2']) > 1){
-								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar2'], $velmax);
-								$radar_penalty = $this->radar2_penalty;
-							}
-							if($tipo_key=='IR' && count($point['snap'][$folder][0]['radar3']) > 1){
-								$gratervel = $this->penalizaRadar($point['snap'][$folder][0]['radar3'], $velmax);
-								$radar_penalty = $this->radar3_penalty;
-							}
-							if($tipo_key=='IR' && $gratervel > 0){
-								$falt_desc = 'Alta velocidade: '.$key_point_txt.' - Velocidade mais alta na ZVC: '.$gratervel.'km/h';
-								$falt_report .= sprintf("%s\r\n",$falt_desc);
-								$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>$radar_penalty);
-							}
-
-							$arr_radares = array('radar1','radar2','radar3');
-
-							/*foreach($point['snap'][$folder][0]['radar1'] AS $rd1){
-								$string2 .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,151,0,13\r\n"
-									,'Radar1'
-									,$rd1['latitude']
-									,$rd1['longitude']
-								);
-							}
-
-
-							$path2 = $this->report_path."/".$folder."/altas_velocidades.txt";
-							touch($path2);			
-							$handle2 = fopen($path2, "w");
-							fwrite($handle2, $string2);
-							fclose($handle2);*/
-
-							// Radares -------------------------------------------------------
-
-							// ---------------------------------------------------------------
-
-							// Tempo ---------------------------------------------------------
-							$tempo = $point['snap'][$folder][0]['zone']['tempo'];
-							if($key_point == 0){
-								$tempo_x2 = $this->functions->toSec($this->zvc1_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc1_mintime_x3);
-							}
-							if($key_point == 1){
-								$tempo_x2 = $this->functions->toSec($this->zvc2_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc2_mintime_x3);
-							}
-							if($key_point == 2){
-								$tempo_x2 = $this->functions->toSec($this->zvc3_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc3_mintime_x3);
-							}
-							if($key_point == 3){
-								$tempo_x2 = $this->functions->toSec($this->zvc4_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc4_mintime_x3);
-							}
-							if($key_point == 4){
-								$tempo_x2 = $this->functions->toSec($this->zvc5_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc5_mintime_x3);
-							}
-							if($key_point == 5){
-								$tempo_x2 = $this->functions->toSec($this->zvc6_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc6_mintime_x3);
-							}
-							if($key_point == 6){
-								$tempo_x2 = $this->functions->toSec($this->zvc7_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc7_mintime_x3);
-							}
-							if($key_point == 7){
-								$tempo_x2 = $this->functions->toSec($this->zvc8_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc8_mintime_x3);
-							}
-							if($key_point == 8){
-								$tempo_x2 = $this->functions->toSec($this->zvc9_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc9_mintime_x3);
-							}
-							if($key_point == 9){
-								$tempo_x2 = $this->functions->toSec($this->zvc10_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc10_mintime_x3);
-							}
-							if($key_point == 10){
-								$tempo_x2 = $this->functions->toSec($this->zvc11_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc11_mintime_x3);
-							}
-							if($key_point == 11){
-								$tempo_x2 = $this->functions->toSec($this->zvc12_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc12_mintime_x3);
-							}
-							if($key_point == 12){
-								$tempo_x2 = $this->functions->toSec($this->zvc13_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc13_mintime_x3);
-							}
-							if($key_point == 13){
-								$tempo_x2 = $this->functions->toSec($this->zvc14_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc14_mintime_x3);
-							}
-							if($key_point == 14){
-								$tempo_x2 = $this->functions->toSec($this->zvc15_mintime_x2);
-								$tempo_x3 = $this->functions->toSec($this->zvc15_mintime_x3);
-							}
-
-							$diff_x2 = ($tempo_x2 - $tempo);
-							$diff_x3 = ($tempo_x3 - $tempo);
-
-							//$diff_x3 = $key_point;
-							
-							if($tempo > 0){
-								if($tipo_key=='IR' && $diff_x3 > 0){
-									$pen_x3 = $diff_x2 * 3;
-									$falt_desc = 'Tempo abaixo (x3): '.$key_point_txt;
-									$falt_report .= sprintf("%s\r\n",$falt_desc);
-									$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>gmdate("H:i:s", $pen_x3));					
-								}
-								elseif($tipo_key=='IR' && $diff_x2 > 0){
-									$pen_x2 = $diff_x2 * 2;
-									$falt_desc = 'Tempo abaixo (x2): '.$key_point_txt;
-									$falt_report .= sprintf("%s\r\n",$falt_desc);
-									$arr_linha[intval($folder)]['P'][$falt_desc][] = array("hora"=>gmdate("H:i:s", $pen_x2));					
-								}
-							}
-							// Tempo ---------------------------------------------------------
-
-							foreach($point['snap'] AS $key_snap => $snap){
-								foreach($snap AS $volta => $detalhes){
-									$pass_report .= sprintf("Passagem: %s\r\n",$key_point_txt);
-									$arr_linha[intval($folder)][$tipo_key][$key_point_txt][$volta] = $detalhes;	
-								}
-							}
-						}
-					}
-				}
-
-				foreach($arr_linha AS $veiculo => $tipos_ponto){
-					foreach($tipos_ponto AS $tipo_key => $pontos){
-						foreach($pontos AS $point_key => $voltas){
-							foreach($voltas AS $num_volta => $volta){
-
-								//descartar outras voltas
-								//if($num_volta==0){
-
-									//$obs = ($tipo_key != 'PT') ? " - OcorrÍncia: ".($num_volta+1)." - Velocidade: ".$volta['velocidade']."km/h" : "";
-									$obs = ($tipo_key != 'P') ? " - Velocidade: ".$volta['velocidade']."km/h" : "";
-
-									$especial = $this->current_ss + $num_volta;
-
-									$string_tmp = sprintf("%s;%s;%s;%s;%s\r\n"
-										,$veiculo
-										,$especial
-										,$tipo_key
-										,$volta['hora']
-										,$point_key.$obs
-									);
-
-									$string .= $string_tmp;
-
-									if( in_array($tipo_key, array("L","LT","I1","I2","I3","I4","CT")) ){
-
-										
-
-										$tempo_valor = $volta['hora'];
-
-										$parte_decimal = end(explode('.', $tempo_valor));
-										$parte_decimal = str_pad($parte_decimal, 2, '0', STR_PAD_RIGHT);
-										$parte_decimal = $parte_decimal*1;
-										$parte_decimal = ($parte_decimal<10) ? 0 : $parte_decimal;
-
-										$sql = "INSERT INTO t01_tempos (c01_valor, c01_tipo, c01_status, c03_codigo, c02_codigo, c01_obs, c01_sigla) VALUES (TIME_TO_SEC('$tempo_valor'), '$tipo_key', getTempoStatus($veiculo, ".$especial.", '$tipo_key'), $veiculo, ".$especial.", '".$point_key.$obs."','SNAPTRAC')";
-
-										if(!$this->link->query($sql)){
-											printf("***********************************\r\n");
-											printf("ERRO AO INSERIR NO BD: %s\r\n",$point_key.$obs);
-											printf("***********************************\r\n");
-										}
-
-										//var_dump($result);
-
-										//print_r("\r\n\r\n");
-
-										//
-										$string_aux .= $string_tmp;
+								if (is_array($pontoPass['zone'])){
+									
+									if(strlen($pontoPass['zone']['gratervel'])>0){
+										$data[$tipoPonto][$i]["passagens"][$folder][$p]["velocidade_alta"] = $pontoPass['zone']['gratervel'];
 									}
-								//}
-							}
-						}						
-					}					
-				}
-
-				
-				/*foreach($this->radar AS $keyRadar => $radar){
-					$string .= sprintf("%s;%s;%s;%s;%s\r\n"
-						,intval($folder)
-						,$this->current_ss
-						,'PR'
-						,$radar['hora']
-						,"OcorrÍncia de excesso de velocidade (".$radar['velocidade']."km/h) em ZVC."
-					);
-				}*/
-				
-				
-				//$string .= $string_aux;
-				$this->relatorio_exportar_chronosat .= $string_aux;
-
-				if(strlen($pass_report)){
-					printf("***********************************\r\n");
-
-					printf("*                                 *\r\n");
-
-					printf("*        P A S S A G E N S        *\r\n");
-
-					printf("*                                 *\r\n");
-
-					printf("***********************************\r\n");
-					echo $pass_report;
-				}
-				if(strlen($falt_report)){
-					printf("***********************************\r\n");
-
-					printf("*                                 *\r\n");
-
-					printf("*           P E N A I S           *\r\n");
-
-					printf("*                                 *\r\n");
-
-					printf("***********************************\r\n");
-					echo $falt_report;
-				}
-						
-			} 
-			elseif ($tipo=='exportar_chronosat'){
-				$string = sprintf("VeÌculo;SS;Tipo de tempo;Hor·rio;Obs\r\n");
-				$string .= $this->relatorio_exportar_chronosat;
-				
-			}
-			elseif ($tipo=='relatorio_pontos_zona_radar'){
-
-				if (!is_array($radares_arr)){
-					$radares_arr = array();
-				}
-
-				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar1']) > 0){
-					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar1'];
-				}
-
-				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar2']) > 0){
-					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar2'];
-				}
-
-				if (count($this->points['entradas'][0]['snap'][$folder][0]['radar3']) > 0){
-					$radares_arr = $radares_arr + $this->points['entradas'][0]['snap'][$folder][0]['radar3'];
-				}
-
-				/*printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");
-
-				printf("Folder: $folder\r\n");
-				//var_dump($this->points['entradas'][0]['snap'][$folder][0]);
-				var_dump($radares_arr);
-				printf("\r\n");
-
-				printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n");*/
-
-				foreach($radares_arr AS $kpoint => $val){
-					if (is_numeric($kpoint)){
-
-						$point = $this->trac[$folder][$kpoint];
-
-						$string .= sprintf("w,d,%s,%s,%s,00/00/0000,00/00/00,00:00:00,0,0,48,0,13\r\n"
-							,$point['velocidade']
-							,$point['latitude']
-							,$point['longitude']
-						);
-					}
-				}
-				
-				/*foreach ($this->points['entradas'] AS $entrada){
-					foreach ($entrada['snap'] AS $snap) {
-						foreach ($snap[$folder] AS $snap_folder){
-							foreach ($snap_folder['radar1'] AS $kpoint){
-								$point = $this->trac[$folder][$kpoint];
-								if (is_numeric($point)){
-									$string .= sprintf("w,d,%s,%s,%s,00/00/0000,00/00/00,00:00:00,0,0,48,0,13\r\n"
-										,$point['velocidade']
-										,$point['latitude']
-										,$point['longitude']
-									);
+									if(strlen($pontoPass['zone']['radar_penalty'])>0){
+										$data[$tipoPonto][$i]["passagens"][$folder][$p]["penalidade_por_radar"] = $pontoPass['zone']['radar_penalty'];
+									}
+									if(isset($pontoPass['zone']['tempo'])){
+										$data[$tipoPonto][$i]["passagens"][$folder][$p]["tempo"] = gmdate("H:i:s", $pontoPass['zone']['tempo']);
+									}
+									
 								}
-							}
+							//}
+							$p++;
 						}
 					}
-				}*/
-			}
-			else {
-				foreach ($this->$tipo AS $point){
-					$string .= sprintf("w,d,%s,%s,%s,05/28/2014,00/00/00,00:00:00,0,0,48,0,13\r\n"
-						,$point['velocidade']
-						,$point['latitude']
-						,$point['longitude']
-					);
+					$i++;
 				}
 			}
-			
-			fwrite($handle, $string);
 		}
-		fclose($handle);
-		
-	}
 
+		echo json_encode($data, JSON_PRETTY_PRINT);
+
+		//echo "<pre>";
+		//var_dump($this->points);
+		//echo "</pre>";
+
+		file_put_contents("report.json", ob_get_flush());
+	}
+	
 	/** Penaliza no radar */
-	public function penalizaRadar($arr_radar, $velmax){
+	private function penalizaRadar($arr_radar, $velmax){
 										
 		$idx_anterior = 0;
 		$continuo = 0;
@@ -1161,7 +784,7 @@ class snaptrac{
 					$continuo++;
 				}
 				elseif($continuo < $this->sec_continuous){
-					//falhando volta a zero caso j· n„o tenha encontrado ocorrencia de continuidade
+					//falhando volta a zero caso j√° n√£o tenha encontrado ocorrencia de continuidade
 					$continuo = 0;
 				}
 
