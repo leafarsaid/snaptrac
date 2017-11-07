@@ -1,0 +1,258 @@
+#### Ocorrências de largada ########################
+
+   Ocorrências de largada do competidor 1:
+   SS1 - Competidor 1 passou às 10:06:05 pelo ponto de largada 0002_ITE a uma velocidade de 86.16 km/h.
+   SS2 - Competidor 1 passou às 11:47:06 pelo ponto de largada 0002_ITE a uma velocidade de 66.51 km/h.
+
+   Ocorrências de largada do competidor 2:
+   SS1 - Competidor 2 passou às 10:02:05 pelo ponto de largada 0002_ITE a uma velocidade de 83.34 km/h.
+   SS2 - Competidor 2 passou às 11:51:06 pelo ponto de largada 0002_ITE a uma velocidade de 78.66 km/h.
+
+   Ocorrências de largada do competidor 3:
+   SS1 - Competidor 3 passou às 10:20:05 pelo ponto de largada 0002_ITE a uma velocidade de 66.78 km/h.
+   SS2 - Competidor 3 passou às 12:03:04 pelo ponto de largada 0002_ITE a uma velocidade de 70.48 km/h.
+
+   Ocorrências de largada do competidor 4:
+   SS1 - Competidor 4 passou às 10:22:06 pelo ponto de largada 0002_ITE a uma velocidade de 79.51 km/h.
+   SS2 - Competidor 4 passou às 12:07:05 pelo ponto de largada 0002_ITE a uma velocidade de 67.49 km/h.
+
+   Ocorrências de largada do competidor 6:
+   SS1 - Competidor 6 passou às 10:08:05 pelo ponto de largada 0002_ITE a uma velocidade de 75.9 km/h.
+   SS2 - Competidor 6 passou às 11:49:05 pelo ponto de largada 0002_ITE a uma velocidade de 83.31 km/h.
+
+#### Ocorrências de chegada ########################
+
+   Ocorrências de chegada do competidor 1:
+   SS1 - Competidor 1 passou às 10:54:10 pelo ponto de chegada chegada a uma velocidade de 137.23 km/h.
+   SS2 - Competidor 1 passou às 12:31:38 pelo ponto de chegada chegada a uma velocidade de 145.76 km/h.
+
+   Ocorrências de chegada do competidor 2:
+   SS1 - Competidor 2 passou às 10:55:44 pelo ponto de chegada chegada a uma velocidade de 136.06 km/h.
+   SS2 - Competidor 2 passou às 12:37:29 pelo ponto de chegada chegada a uma velocidade de 142.15 km/h.
+
+   Ocorrências de chegada do competidor 3:
+   SS1 - Competidor 3 passou às 11:17:01 pelo ponto de chegada chegada a uma velocidade de 105.68 km/h.
+   SS2 - Competidor 3 passou às 12:57:04 pelo ponto de chegada chegada a uma velocidade de 109.66 km/h.
+
+   Ocorrências de chegada do competidor 4:
+   SS1 - Competidor 4 passou às 11:21:29 pelo ponto de chegada chegada a uma velocidade de 108.01 km/h.
+   SS2 - Competidor 4 passou às 13:06:45 pelo ponto de chegada chegada a uma velocidade de 110.64 km/h.
+
+   Ocorrências de chegada do competidor 6:
+   SS1 - Competidor 6 passou às 10:55:16 pelo ponto de chegada chegada a uma velocidade de 150.92 km/h.
+   SS2 - Competidor 6 passou às 12:34:21 pelo ponto de chegada chegada a uma velocidade de 142.94 km/h.
+
+#### Ocorrências de inter1 ########################
+
+   Ocorrências de inter1 do competidor 1:
+   (nenhuma)
+
+   Ocorrências de inter1 do competidor 2:
+   (nenhuma)
+
+   Ocorrências de inter1 do competidor 3:
+   (nenhuma)
+
+   Ocorrências de inter1 do competidor 4:
+   (nenhuma)
+
+   Ocorrências de inter1 do competidor 6:
+   (nenhuma)
+
+#### Ocorrências de inter2 ########################
+
+   Ocorrências de inter2 do competidor 1:
+   SS1 - Competidor 1 passou às 10:18:29 pelo ponto de inter2 0027-I2 a uma velocidade de 38.44 km/h.
+   SS2 - Competidor 1 passou às 11:58:39 pelo ponto de inter2 0027-I2 a uma velocidade de 49.77 km/h.
+
+   Ocorrências de inter2 do competidor 2:
+   SS1 - Competidor 2 passou às 10:14:41 pelo ponto de inter2 0027-I2 a uma velocidade de 23.62 km/h.
+   SS2 - Competidor 2 passou às 12:03:12 pelo ponto de inter2 0027-I2 a uma velocidade de 38.96 km/h.
+
+   Ocorrências de inter2 do competidor 3:
+   SS1 - Competidor 3 passou às 10:35:11 pelo ponto de inter2 0027-I2 a uma velocidade de 33.81 km/h.
+   SS2 - Competidor 3 passou às 12:17:26 pelo ponto de inter2 0027-I2 a uma velocidade de 18.47 km/h.
+
+   Ocorrências de inter2 do competidor 4:
+   SS1 - Competidor 4 passou às 10:38:12 pelo ponto de inter2 0027-I2 a uma velocidade de 34.63 km/h.
+   SS2 - Competidor 4 passou às 12:22:52 pelo ponto de inter2 0027-I2 a uma velocidade de 30.32 km/h.
+
+   Ocorrências de inter2 do competidor 6:
+   SS1 - Competidor 6 passou às 10:20:28 pelo ponto de inter2 0027-I2 a uma velocidade de 35.45 km/h.
+   SS2 - Competidor 6 passou às 12:00:44 pelo ponto de inter2 0027-I2 a uma velocidade de 28.06 km/h.
+
+#### Ocorrências de inter3 ########################
+
+   Ocorrências de inter3 do competidor 1:
+   SS1 - Competidor 1 passou às 10:32:47 pelo ponto de inter3 0042 a uma velocidade de 53.58 km/h.
+   SS2 - Competidor 1 passou às 12:12:09 pelo ponto de inter3 0042 a uma velocidade de 60.48 km/h.
+
+   Ocorrências de inter3 do competidor 2:
+   SS1 - Competidor 2 passou às 10:33:34 pelo ponto de inter3 0042 a uma velocidade de 51.22 km/h.
+   SS2 - Competidor 2 passou às 12:16:55 pelo ponto de inter3 0042 a uma velocidade de 48.94 km/h.
+
+   Ocorrências de inter3 do competidor 3:
+   SS1 - Competidor 3 passou às 10:51:41 pelo ponto de inter3 0042 a uma velocidade de 57.46 km/h.
+   SS2 - Competidor 3 passou às 12:33:04 pelo ponto de inter3 0042 a uma velocidade de 46.67 km/h.
+
+   Ocorrências de inter3 do competidor 4:
+   SS1 - Competidor 4 passou às 10:55:04 pelo ponto de inter3 0042 a uma velocidade de 41.05 km/h.
+   SS2 - Competidor 4 passou às 12:40:08 pelo ponto de inter3 0042 a uma velocidade de 41.63 km/h.
+
+   Ocorrências de inter3 do competidor 6:
+   SS1 - Competidor 6 passou às 10:34:33 pelo ponto de inter3 0042 a uma velocidade de 57.4 km/h.
+   SS2 - Competidor 6 passou às 12:14:14 pelo ponto de inter3 0042 a uma velocidade de 60.89 km/h.
+
+#### Ocorrências de inter4 ########################
+
+   Ocorrências de inter4 do competidor 1:
+   SS1 - Competidor 1 passou às 10:40:26 pelo ponto de inter4 0049 a uma velocidade de 31.08 km/h.
+   SS2 - Competidor 1 passou às 12:19:08 pelo ponto de inter4 0049 a uma velocidade de 58.61 km/h.
+
+   Ocorrências de inter4 do competidor 2:
+   SS1 - Competidor 2 passou às 10:41:36 pelo ponto de inter4 0049 a uma velocidade de 18.43 km/h.
+   SS2 - Competidor 2 passou às 12:24:21 pelo ponto de inter4 0049 a uma velocidade de 51.13 km/h.
+
+   Ocorrências de inter4 do competidor 3:
+   SS1 - Competidor 3 passou às 11:00:54 pelo ponto de inter4 0049 a uma velocidade de 23.02 km/h.
+   SS2 - Competidor 3 passou às 12:41:42 pelo ponto de inter4 0049 a uma velocidade de 24.43 km/h.
+
+   Ocorrências de inter4 do competidor 4:
+   SS1 - Competidor 4 passou às 11:04:48 pelo ponto de inter4 0049 a uma velocidade de 32.5 km/h.
+   SS2 - Competidor 4 passou às 12:49:51 pelo ponto de inter4 0049 a uma velocidade de 36.21 km/h.
+
+   Ocorrências de inter4 do competidor 6:
+   SS1 - Competidor 6 passou às 10:42:03 pelo ponto de inter4 0049 a uma velocidade de 39.4 km/h.
+   SS2 - Competidor 6 passou às 12:21:31 pelo ponto de inter4 0049 a uma velocidade de 33.04 km/h.
+
+#### Perdas de Waypoints ##########################
+
+   Perdas para o competidor 1:
+   (nenhuma)
+
+   Perdas para o competidor 2:
+   (nenhuma)
+
+   Perdas para o competidor 3:
+   (nenhuma)
+
+   Perdas para o competidor 4:
+   (nenhuma)
+
+   Perdas para o competidor 6:
+   (nenhuma)
+
+#### Perdas de Carimbos ###########################
+
+   Perdas para o competidor 1:
+   * Competidor 1 não passou pelo carimbo 0070 na especial 2.
+
+   Perdas para o competidor 2:
+   * Competidor 2 não passou pelo carimbo 0070 na especial 2.
+
+   Perdas para o competidor 3:
+   (nenhuma)
+
+   Perdas para o competidor 4:
+   * Competidor 4 não passou pelo carimbo 0070 na especial 2.
+
+   Perdas para o competidor 6:
+   (nenhuma)
+
+#### ZVC1 ########################
+
+   ZVC1 para o competidor 1:
+   * Competidor 1 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 1. Velocidade de 30.62 km/h.
+   * Competidor 1 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 1. O tempo foi de 00:03:07.
+   * Competidor 1 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 2. Velocidade de 33.78 km/h.
+   * Competidor 1 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 2. O tempo foi de 00:03:07.
+
+   ZVC1 para o competidor 2:
+   * Competidor 2 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 1. Velocidade de 37.1 km/h.
+   * Competidor 2 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 1. O tempo foi de 00:03:08.
+   * Competidor 2 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 2. Velocidade de 30.12 km/h.
+   * Competidor 2 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 2. O tempo foi de 00:03:06.
+
+   ZVC1 para o competidor 3:
+   * Competidor 3 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 1. Velocidade de 25.92 km/h.
+   * Competidor 3 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 1. O tempo foi de 00:03:06.
+   * Competidor 3 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 2. Velocidade de 27.59 km/h.
+   * Competidor 3 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 2. O tempo foi de 00:03:04.
+
+   ZVC1 para o competidor 4:
+   * Competidor 4 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 1. Velocidade de 29.14 km/h.
+   * Competidor 4 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 1. O tempo foi de 00:03:09.
+   * Competidor 4 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 2. Velocidade de 26.4 km/h.
+   * Competidor 4 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 2. O tempo foi de 00:03:08.
+
+   ZVC1 para o competidor 6:
+   * Competidor 6 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 1. Velocidade de 26.09 km/h.
+   * Competidor 6 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 1. O tempo foi de 00:03:07.
+   * Competidor 6 ultrapassou a velocidade máxima na ZVC 0029 IZVC1 na especial 2. Velocidade de 29.79 km/h.
+   * Competidor 6 fez um tempo muito curto na ZVC 0029 IZVC1 na especial 2. O tempo foi de 00:03:05.
+
+#### ZVC2 ########################
+
+   ZVC2 para o competidor 1:
+   * Competidor 1 ultrapassou a velocidade máxima na ZVC 0038 IZVC2 na especial 1. Velocidade de 38.13 km/h.
+
+   ZVC2 para o competidor 2:
+   * Competidor 2 ultrapassou a velocidade máxima na ZVC 0038 IZVC2 na especial 2. Velocidade de 78.45 km/h.
+
+   ZVC2 para o competidor 3:
+
+   ZVC2 para o competidor 4:
+
+   ZVC2 para o competidor 6:
+
+#### ZVC3 ########################
+
+   ZVC3 para o competidor 1:
+   (nenhuma)
+
+   ZVC3 para o competidor 2:
+   (nenhuma)
+
+   ZVC3 para o competidor 3:
+   (nenhuma)
+
+   ZVC3 para o competidor 4:
+   (nenhuma)
+
+   ZVC3 para o competidor 6:
+   (nenhuma)
+
+#### ZVC4 ########################
+
+   ZVC4 para o competidor 1:
+   (nenhuma)
+
+   ZVC4 para o competidor 2:
+   (nenhuma)
+
+   ZVC4 para o competidor 3:
+   (nenhuma)
+
+   ZVC4 para o competidor 4:
+   (nenhuma)
+
+   ZVC4 para o competidor 6:
+   (nenhuma)
+
+#### ZVC5 ########################
+
+   ZVC5 para o competidor 1:
+   (nenhuma)
+
+   ZVC5 para o competidor 2:
+   (nenhuma)
+
+   ZVC5 para o competidor 3:
+   (nenhuma)
+
+   ZVC5 para o competidor 4:
+   (nenhuma)
+
+   ZVC5 para o competidor 6:
+   (nenhuma)
+

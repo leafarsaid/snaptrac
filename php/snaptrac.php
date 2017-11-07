@@ -299,6 +299,7 @@ class snaptrac{
 				$this->setTrechos($folder);
 				$this->zoneProcess($folder);
 				$this->radarProcess($folder);
+				$this->stampProcess($folder);
 				$this->reportPoints();
 			}
 			//mysqli_close($this->link);
@@ -314,7 +315,7 @@ class snaptrac{
 	 * @version 18/06/2014
 	 * @version 01/11/2016 novos tipos de pontos (em csv)
 	 */
-	private function getPoints(){
+	public function getPoints(){
 
 		printf("Obtendo pontos do arquivo ".$this->arq_pontos.". . .\r\n");
 			
@@ -416,7 +417,7 @@ class snaptrac{
 					}
 				}
 			}			
-			//rename($this->import_path."/".$file, $this->processed_path."/".$file);
+			rename($this->import_path."/".$file, $this->processed_path."/".$file);
 		}	
 	}
 			
@@ -515,7 +516,23 @@ class snaptrac{
 
 										if ($tempo > 0 || true){
 											$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone'][$idx] = $ptTrac['velocidade'];
-											$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone']['tempo'] = $tempo;				
+											$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone']['tempo'] = $tempo;	
+
+											//penalização por tempo
+											$mintime_x2 = "zvc".$e."_mintime_x2";
+											$mintime_x3 = "zvc".$e."_mintime_x3";
+											$tempo_x2 = $this->functions->toSec($this->$mintime_x2);
+											$tempo_x3 = $this->functions->toSec($this->$mintime_x3);
+											$diff_x2 = ($tempo_x2 - $tempo);
+											$diff_x3 = ($tempo_x3 - $tempo);
+											if($diff_x3 > 0){
+												$pen_x3 = $diff_x3 * 3;
+												$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone']['penalty_per_time'] = gmdate("H:i:s", $pen_x3);		
+											}
+											elseif($diff_x2 > 0){
+												$pen_x2 = $diff_x2 * 2;
+												$this->points[$txt_entrada][$key]['snap'][$folder][$keyPass]['zone']['penalty_per_time'] = gmdate("H:i:s", $pen_x2);				
+											}
 										}
 									}
 								}
@@ -562,7 +579,7 @@ class snaptrac{
 
 										if ($vel >= ($maxspeed+$this->radar2)){
 											$this->points[$txt_entrada][$keyEntrada]['snap'][$folder][$keyPass]['zone']['radar3'][] = $vel;
-										}
+										}										
 									}
 								}
 							}
@@ -594,14 +611,25 @@ class snaptrac{
 		}
 	}
 
-	/** Processo de penalização dos arquivos
+	/** Processo do carimbo
 	 *
 	 * @author Rafael Dias <rafael@chronosat.com.br>
-	 * @version 25/10/2017
+	 * @version 06/11/2017
 	 */
-	private function penaltyProcess($folder){
-
+	private function stampProcess($folder){
+		if(is_array($this->points['carimbo'])){
+			foreach ($this->points['carimbo'] AS $key => $point){
+				if(is_array($point['snap'][$folder])){
+					foreach($point['snap'][$folder] AS $keyPass => $snap){
+						if ($snap['velocidade'] > $this->stamp_vel){
+							$this->points['carimbo'][$key]['snap'][$folder][$keyPass]['lost_stamp_penalty'] = $this->lost_stamp_penalty;
+						}
+					}
+				}
+			}
+		}
 	}
+	
 
 	#endregion
 
@@ -736,6 +764,11 @@ class snaptrac{
 							$data[$tipoPonto][$i]["passagens"][$folder][$p]["ss"]=$pontoPass['ss'];
 							$data[$tipoPonto][$i]["passagens"][$folder][$p]["hora"]=$pontoPass['hora'];
 							$data[$tipoPonto][$i]["passagens"][$folder][$p]["velocidade"]=$pontoPass['velocidade'];
+							$data[$tipoPonto][$i]["passagens"][$folder][$p]["latitude"]=$pontoPass['latitude'];
+							$data[$tipoPonto][$i]["passagens"][$folder][$p]["longitude"]=$pontoPass['longitude'];
+							if($pontoPass['lost_stamp_penalty']){
+								$data[$tipoPonto][$i]["passagens"][$folder][$p]["lost_stamp_penalty"]=$pontoPass['lost_stamp_penalty'];
+							}
 							//if ($tipoPonto=='entradas'){
 
 								if (is_array($pontoPass['zone'])){
@@ -745,6 +778,9 @@ class snaptrac{
 									}
 									if(strlen($pontoPass['zone']['radar_penalty'])>0){
 										$data[$tipoPonto][$i]["passagens"][$folder][$p]["penalidade_por_radar"] = $pontoPass['zone']['radar_penalty'];
+									}
+									if(strlen($pontoPass['zone']['penalty_per_time'])>0){
+										$data[$tipoPonto][$i]["passagens"][$folder][$p]["penalidade_por_tempo"] = $pontoPass['zone']['penalty_per_time'];
 									}
 									if(isset($pontoPass['zone']['tempo'])){
 										$data[$tipoPonto][$i]["passagens"][$folder][$p]["tempo"] = gmdate("H:i:s", $pontoPass['zone']['tempo']);
@@ -766,7 +802,7 @@ class snaptrac{
 		//var_dump($this->points);
 		//echo "</pre>";
 
-		file_put_contents("report.json", ob_get_flush());
+		file_put_contents($this->report_path."\\report.json", ob_get_flush());
 	}
 	
 	/** Penaliza no radar */

@@ -506,7 +506,7 @@
 </wpt>
 <wpt lat="-23.121217964" lon="-47.203735029">
 	<ele>2.000000</ele>
-	<name>W</name>
+	<name>CB</name>
 	<cmt>0070</cmt>
 	<desc>0070</desc>
 	<sym>Waypoint</sym>
